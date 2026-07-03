@@ -1,0 +1,3138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GuardDesk Pro — Login</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060D1A;--surface:#0D1B2E;--surface2:#112238;--surface3:#1A2F4A;
+  --border:#1E3554;--border2:#254060;
+  --green:#00C896;--green-dim:#009B74;--green-glow:rgba(0,200,150,0.18);
+  --amber:#F5A623;--red:#E5383B;--blue:#2D7DD2;
+  --white:#F0F6FF;--muted:#5A7A9A;--muted2:#3D5A78;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:100vh;line-height:1.6}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
+
+/* ══════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════ */
+#screen-login{
+  align-items:center;justify-content:center;
+  padding:20px;
+  background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(0,200,150,0.07) 0%,transparent 70%),var(--bg);
+}
+.login-box{
+  width:100%;max-width:420px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,0.5);
+}
+.login-top{
+  background:linear-gradient(135deg,var(--surface2),var(--surface));
+  padding:32px 32px 24px;text-align:center;
+  border-bottom:1px solid var(--border);
+}
+.login-logo{
+  width:52px;height:52px;background:var(--green);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;margin:0 auto 14px;
+  box-shadow:0 0 24px var(--green-glow);
+}
+.login-title{font-size:20px;font-weight:800;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--muted)}
+
+.login-tabs{display:flex;border-bottom:1px solid var(--border)}
+.login-tab{
+  flex:1;padding:13px;text-align:center;
+  font-size:13px;font-weight:600;color:var(--muted);
+  cursor:pointer;transition:all 0.2s;border-bottom:2px solid transparent;
+}
+.login-tab:hover{color:var(--white)}
+.login-tab.active{color:var(--green);border-bottom-color:var(--green);background:rgba(0,200,150,0.05)}
+
+.login-body{padding:28px 32px}
+.login-error{
+  background:rgba(229,56,59,0.1);border:1px solid rgba(229,56,59,0.3);
+  border-radius:8px;padding:10px 14px;
+  font-size:13px;color:#FF8080;margin-bottom:16px;
+  display:none;
+}
+.login-error.show{display:block}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.form-group label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px}
+.form-group input{
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  color:var(--white);font-family:var(--sans);font-size:14px;padding:11px 14px;
+  outline:none;transition:border-color 0.2s;
+}
+.form-group input:focus{border-color:var(--green)}
+.form-group input::placeholder{color:var(--muted2)}
+.btn-login{
+  width:100%;padding:13px;border:none;border-radius:9px;
+  background:var(--green);color:var(--bg);
+  font-family:var(--sans);font-size:15px;font-weight:800;
+  cursor:pointer;transition:all 0.2s;
+  box-shadow:0 0 20px var(--green-glow);margin-top:4px;
+}
+.btn-login:hover{background:var(--green-dim)}
+.login-footer{text-align:center;margin-top:16px;font-size:12px;color:var(--muted)}
+
+/* ══════════════════════════════════
+   SHARED LAYOUT
+══════════════════════════════════ */
+.app-layout{flex-direction:column;width:100%}
+.app-header{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 24px;height:58px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;flex-shrink:0;
+}
+.app-logo{display:flex;align-items:center;gap:10px}
+.app-logo-mark{width:32px;height:32px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 12px var(--green-glow)}
+.app-logo-text{font-size:15px;font-weight:800}
+.app-logo-text em{color:var(--green);font-style:normal}
+.app-user{display:flex;align-items:center;gap:10px}
+.user-badge{
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  padding:4px 10px;border-radius:20px;letter-spacing:1px;
+}
+.badge-owner{background:rgba(245,166,35,0.15);color:var(--amber);border:1px solid rgba(245,166,35,0.3)}
+.badge-client{background:rgba(0,200,150,0.15);color:var(--green);border:1px solid rgba(0,200,150,0.3)}
+.btn-logout{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:7px;color:var(--muted);
+  font-family:var(--sans);font-size:12px;font-weight:600;
+  padding:6px 12px;cursor:pointer;transition:all 0.2s;
+}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+.app-content{flex:1;max-width:1000px;margin:0 auto;padding:28px 20px 60px;width:100%}
+
+/* ══════════════════════════════════
+   ADMIN PANEL
+══════════════════════════════════ */
+.admin-section-label{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--amber);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.admin-section-title{font-size:20px;font-weight:800;margin-bottom:4px}
+.admin-section-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px}
+.stat-box{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;padding:18px;
+}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;font-weight:600}
+.stat-val{font-size:26px;font-weight:900}
+.stat-val.green{color:var(--green)}
+.stat-val.amber{color:var(--amber)}
+.stat-val.red{color:var(--red)}
+.stat-val.blue{color:var(--blue)}
+
+/* ADD CLIENT FORM */
+.add-client-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:24px;overflow:hidden;
+}
+.card-head{
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-head-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px}
+.card-body{padding:20px}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg-full{grid-column:1/-1}
+.fg-3{grid-template-columns:1fr 1fr 1fr}
+.admin-input{
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  color:var(--white);font-family:var(--sans);font-size:13px;padding:9px 13px;
+  outline:none;transition:border-color 0.2s;width:100%;
+}
+.admin-input:focus{border-color:var(--green)}
+.admin-input::placeholder{color:var(--muted2)}
+.admin-select{background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--sans);font-size:13px;padding:9px 13px;outline:none;width:100%}
+.admin-select option{background:var(--surface2)}
+.admin-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;display:block;margin-bottom:5px}
+.btn-add{
+  background:var(--amber);color:var(--bg);border:none;border-radius:8px;
+  font-family:var(--sans);font-size:13px;font-weight:800;
+  padding:10px 22px;cursor:pointer;transition:all 0.2s;
+}
+.btn-add:hover{background:var(--amber-dim,#C4841A)}
+
+/* CLIENT TABLE */
+.client-table-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;margin-bottom:24px;
+}
+.client-table{width:100%;border-collapse:collapse;font-size:13px}
+.client-table th{
+  text-align:left;padding:11px 16px;
+  font-size:11px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.8px;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.client-table td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+.client-table tr:last-child td{border-bottom:none}
+.client-table tr:hover td{background:rgba(255,255,255,0.02)}
+
+.status-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  padding:4px 10px;border-radius:20px;letter-spacing:0.5px;
+  white-space:nowrap;
+}
+.status-active{background:rgba(0,200,150,0.15);color:var(--green);border:1px solid rgba(0,200,150,0.3)}
+.status-suspended{background:rgba(229,56,59,0.15);color:var(--red);border:1px solid rgba(229,56,59,0.3)}
+.status-trial{background:rgba(45,125,210,0.15);color:var(--blue);border:1px solid rgba(45,125,210,0.3)}
+
+.plan-tag{
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  padding:3px 9px;border-radius:4px;
+  background:rgba(245,166,35,0.12);color:var(--amber);
+}
+
+.action-btns{display:flex;gap:6px;flex-wrap:wrap}
+.btn-act{
+  font-family:var(--sans);font-size:11px;font-weight:700;
+  padding:5px 11px;border-radius:6px;cursor:pointer;
+  border:none;transition:all 0.2s;white-space:nowrap;
+}
+.btn-activate{background:rgba(0,200,150,0.15);color:var(--green);border:1px solid rgba(0,200,150,0.3)}
+.btn-activate:hover{background:var(--green);color:var(--bg)}
+.btn-suspend{background:rgba(229,56,59,0.1);color:var(--red);border:1px solid rgba(229,56,59,0.3)}
+.btn-suspend:hover{background:var(--red);color:var(--white)}
+.btn-delete{background:rgba(90,122,154,0.1);color:var(--muted);border:1px solid var(--border)}
+.btn-delete:hover{background:var(--red);color:var(--white);border-color:var(--red)}
+.btn-copy-cred{background:rgba(45,125,210,0.1);color:var(--blue);border:1px solid rgba(45,125,210,0.3)}
+.btn-copy-cred:hover{background:var(--blue);color:var(--white)}
+
+.empty-state{text-align:center;padding:40px;color:var(--muted);font-size:13px}
+
+/* ══════════════════════════════════
+   CLIENT WORKSPACE
+══════════════════════════════════ */
+.workspace-nav{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;overflow-x:auto;padding:0 20px;
+  scrollbar-width:none;
+}
+.workspace-nav::-webkit-scrollbar{display:none}
+.wnav-tab{
+  padding:13px 18px;font-size:13px;font-weight:600;
+  color:var(--muted);border-bottom:2px solid transparent;
+  cursor:pointer;white-space:nowrap;transition:all 0.2s;
+  display:flex;align-items:center;gap:7px;
+}
+.wnav-tab:hover{color:var(--white)}
+.wnav-tab.active{color:var(--green);border-bottom-color:var(--green)}
+
+.ws-panel{display:none}.ws-panel.active{display:block}
+.ws-content{max-width:860px;margin:0 auto;padding:28px 20px 60px}
+
+.ws-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:20px;overflow:hidden;
+}
+.ws-card-head{
+  padding:13px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ws-card-title{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green);letter-spacing:1.5px;text-transform:uppercase}
+.ws-card-body{padding:20px}
+.ws-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ws-fg-full{grid-column:1/-1}
+.ws-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;display:block;margin-bottom:5px}
+.ws-input,.ws-select,.ws-textarea{
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  color:var(--white);font-family:var(--sans);font-size:13px;padding:9px 13px;
+  outline:none;transition:border-color 0.2s;width:100%;
+}
+.ws-input:focus,.ws-select:focus,.ws-textarea:focus{border-color:var(--green)}
+.ws-input::placeholder,.ws-textarea::placeholder{color:var(--muted2)}
+.ws-select option{background:var(--surface2)}
+.ws-textarea{resize:vertical;min-height:80px}
+.ws-pills{display:flex;flex-wrap:wrap;gap:7px}
+.ws-pill{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:20px;padding:5px 13px;font-size:12px;
+  cursor:pointer;color:var(--muted);transition:all 0.2s;user-select:none;
+}
+.ws-pill:hover{border-color:var(--green);color:var(--white)}
+.ws-pill.active{background:var(--green);border-color:var(--green);color:var(--bg);font-weight:700}
+.btn-generate{
+  width:100%;padding:13px;border:none;border-radius:9px;
+  background:var(--green);color:var(--bg);
+  font-family:var(--sans);font-size:14px;font-weight:800;
+  cursor:pointer;transition:all 0.2s;
+  box-shadow:0 0 20px var(--green-glow);margin-top:4px;
+}
+.btn-generate:hover{background:var(--green-dim)}
+.btn-generate:disabled{opacity:0.4;cursor:not-allowed}
+.ws-loading{display:none;text-align:center;padding:32px;color:var(--muted)}
+.ws-loading.show{display:block}
+.spinner{width:34px;height:34px;border:3px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ws-output{display:none;margin-top:18px}
+.ws-output.show{display:block}
+.ws-out-head{
+  background:var(--green);color:var(--bg);
+  padding:11px 18px;border-radius:9px 9px 0 0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ws-out-head strong{font-size:13px;font-weight:800}
+.ws-out-actions{display:flex;gap:7px}
+.ws-act-btn{
+  background:rgba(0,0,0,0.18);border:none;border-radius:5px;
+  color:var(--bg);font-family:var(--sans);font-size:11px;font-weight:700;
+  padding:4px 10px;cursor:pointer;transition:background 0.2s;
+}
+.ws-act-btn:hover{background:rgba(0,0,0,0.3)}
+.ws-out-body{
+  background:var(--surface);border:1px solid var(--border);border-top:none;
+  border-radius:0 0 9px 9px;
+  padding:20px;font-family:var(--mono);font-size:12px;
+  line-height:1.9;color:#C8DFF5;white-space:pre-wrap;
+  word-break:break-word;max-height:480px;overflow-y:auto;
+}
+
+/* CLIENT INFO BANNER */
+.client-info-banner{
+  background:linear-gradient(135deg,rgba(0,200,150,0.08),rgba(45,125,210,0.06));
+  border:1px solid rgba(0,200,150,0.2);border-radius:10px;
+  padding:14px 18px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+.cib-left{display:flex;align-items:center;gap:12px}
+.cib-avatar{width:38px;height:38px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--bg)}
+.cib-name{font-size:14px;font-weight:700}
+.cib-plan{font-size:12px;color:var(--muted)}
+.cib-right{display:flex;gap:10px;align-items:center}
+.due-chip{font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:6px}
+.due-ok{background:rgba(0,200,150,0.1);color:var(--green)}
+.due-warn{background:rgba(245,166,35,0.1);color:var(--amber)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:var(--bg);padding:11px 18px;border-radius:9px;font-weight:700;font-size:13px;transform:translateY(60px);opacity:0;transition:all 0.3s;z-index:999}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* CONFIRM MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:400px;width:100%}
+.modal-title{font-size:17px;font-weight:800;margin-bottom:8px}
+.modal-body{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.7}
+.modal-btns{display:flex;gap:10px}
+.modal-btn-confirm{flex:1;padding:11px;background:var(--red);color:var(--white);border:none;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer}
+.modal-btn-cancel{padding:11px 18px;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer}
+
+/* ── ACCORDION ── */
+/* ── ACCORDION SETTINGS ── */
+.acc-item{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;transition:all 0.2s;
+}
+.acc-item:hover{border-color:var(--border2)}
+.acc-head{
+  padding:16px 20px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+  user-select:none;transition:background 0.2s;
+}
+.acc-head:hover{background:rgba(255,255,255,0.03)}
+.acc-chevron{
+  font-size:20px;color:var(--muted);
+  transition:transform 0.3s;display:inline-block;
+}
+.acc-item.open .acc-chevron{transform:rotate(90deg);color:var(--green)}
+.acc-body{
+  max-height:0;overflow:hidden;
+  transition:max-height 0.35s ease;
+  border-top:0px solid var(--border);
+}
+.acc-item.open .acc-body{
+  max-height:800px;
+  border-top:1px solid var(--border);
+}
+
+/* ── LANGUAGE OPTIONS ── */
+.lang-opt{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:8px;padding:10px 14px;
+  font-size:13px;font-weight:600;cursor:pointer;
+  text-align:center;transition:all 0.2s;
+}
+.lang-opt:hover{border-color:var(--green);color:var(--green)}
+.lang-opt.active{background:var(--green);border-color:var(--green);color:var(--bg);font-weight:700}
+
+/* ── THEME VARIANTS ── */
+body.theme-blue{--green:#2D7DD2;--green-dim:#1E5FA8;--green-glow:rgba(45,125,210,0.18)}
+body.theme-amber{--green:#F5A623;--green-dim:#C4841A;--green-glow:rgba(245,166,35,0.18)}
+body.theme-purple{--green:#A855F7;--green-dim:#8B3FD6;--green-glow:rgba(168,85,247,0.18)}
+body.theme-red{--green:#E5383B;--green-dim:#C42326;--green-glow:rgba(229,56,59,0.18)}
+
+.theme-option.active{border-color:var(--green) !important;background:rgba(0,200,150,0.08)}
+
+/* ── TOGGLE SWITCH ── */
+#sound-toggle:checked + #sound-toggle-slider{background:var(--green)}
+#sound-toggle:checked + #sound-toggle-slider::before{transform:translateX(22px)}
+#sound-toggle-slider::before{content:'';position:absolute;height:20px;width:20px;left:3px;top:3px;background:white;border-radius:50%;transition:0.3s}
+
+@media(max-width:580px){
+  .form-grid-2,.ws-form-grid{grid-template-columns:1fr}
+  .fg-full,.ws-fg-full{grid-column:1}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .app-header{padding:0 14px}
+  .login-body{padding:20px}
+  .client-table{font-size:12px}
+  .client-table td,.client-table th{padding:10px 10px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="login-box">
+    <div class="login-top">
+      <div class="login-logo">🛡️</div>
+      <div class="login-title">GuardDesk Pro</div>
+      <div class="login-sub">South African Security Workspace</div>
+    </div>
+
+    <div class="login-body">
+      <div class="login-error" id="login-error">Incorrect username or password. Please try again.</div>
+      <div class="login-success" id="login-success" style="display:none;background:rgba(0,200,150,0.1);border:1px solid rgba(0,200,150,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:14px"></div>
+
+      <!-- OWNER — hidden, shown via ?owner=true -->
+      <div id="owner-login-form" style="display:none">
+        <div style="background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.25);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:14px">
+          👑 <strong>Owner Panel</strong> — GuardDesk Pro Administration
+        </div>
+        <div class="form-group">
+          <label>Owner Username</label>
+          <input type="text" id="owner-user" placeholder="Enter username" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div style="position:relative">
+            <input type="password" id="owner-pass" placeholder="Enter password" autocomplete="current-password" style="padding-right:44px">
+            <button type="button" onclick="togglePass('owner-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px">👁️</button>
+          </div>
+        </div>
+        <button class="btn-login" onclick="loginOwner()">👑 Login as Owner</button>
+      </div>
+
+      <!-- CLIENT — always visible -->
+      <div id="client-login-form">
+        <div style="background:rgba(0,200,150,0.06);border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--green);margin-bottom:14px">
+          👮 Enter the username and password sent to you by GuardDesk Pro
+        </div>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="client-user" placeholder="Your username" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div style="position:relative">
+            <input type="password" id="client-pass" placeholder="Your password" autocomplete="current-password" style="padding-right:44px">
+            <button type="button" onclick="togglePass('client-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px">👁️</button>
+          </div>
+        </div>
+        <button class="btn-login" onclick="loginClient()" style="background:var(--blue);box-shadow:none">🛡️ Login to My Workspace</button>
+        <div style="text-align:center;margin-top:14px">
+          <button onclick="showForgotPassword()" style="background:none;border:none;color:var(--muted);font-family:var(--sans);font-size:12px;cursor:pointer;text-decoration:underline">🔑 Forgot your password?</button>
+        </div>
+      </div>
+
+      <!-- FORGOT PASSWORD PANEL -->
+      <div id="forgot-panel" style="display:none">
+        <div style="background:rgba(45,125,210,0.08);border:1px solid rgba(45,125,210,0.3);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--blue);margin-bottom:16px">
+          🔑 Enter your username below and contact GuardDesk Pro on WhatsApp to reset your password.
+        </div>
+        <div class="form-group">
+          <label>Your Username</label>
+          <input type="text" id="forgot-user" placeholder="Enter your username">
+        </div>
+        <button class="btn-login" onclick="requestPasswordReset()" style="background:var(--blue);box-shadow:none">📱 Request Password Reset</button>
+        <div style="text-align:center;margin-top:12px">
+          <button onclick="hideForgotPassword()" style="background:none;border:none;color:var(--muted);font-family:var(--sans);font-size:12px;cursor:pointer;text-decoration:underline">← Back to Login</button>
+        </div>
+      </div>
+
+      <div class="login-footer">🔒 Secured · GuardDesk Pro © 2026 Cornelius Dlamini · All Rights Reserved</div>
+      <div style="text-align:center;margin-top:12px">
+        <div style="font-size:10px;color:var(--muted2);margin-bottom:6px;font-family:var(--mono);letter-spacing:1px">SELECT LANGUAGE / KHETHA ULIMI</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center">
+          <button onclick="quickLang('en')" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:3px 7px;cursor:pointer">EN</button>
+          <button onclick="quickLang('zu')" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:3px 7px;cursor:pointer">ZU</button>
+          <button onclick="quickLang('xh')" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:3px 7px;cursor:pointer">XH</button>
+          <button onclick="quickLang('af')" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:3px 7px;cursor:pointer">AF</button>
+          <button onclick="quickLang('nso')" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:3px 7px;cursor:pointer">NSO</button>
+          <button onclick="quickLang('tn')" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:3px 7px;cursor:pointer">TN</button>
+          <button onclick="quickLang('st')" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:3px 7px;cursor:pointer">ST</button>
+          <button onclick="quickLang('ts')" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:3px 7px;cursor:pointer">TS</button>
+          <button onclick="quickLang('ss')" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:3px 7px;cursor:pointer">SS</button>
+          <button onclick="quickLang('ve')" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:3px 7px;cursor:pointer">VE</button>
+          <button onclick="quickLang('nr')" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:3px 7px;cursor:pointer">NR</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:10px">
+        <button onclick="resetDemoData()" style="background:rgba(229,56,59,0.1);border:1px solid rgba(229,56,59,0.3);border-radius:6px;color:#FF6B6B;font-family:var(--sans);font-size:11px;font-weight:600;padding:6px 14px;cursor:pointer">
+          🔄 Reset &amp; Restore Demo Login
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ADMIN SCREEN
+══════════════════════════════════ -->
+<div id="screen-admin" class="screen app-layout">
+  <div class="app-header">
+    <div class="app-logo">
+      <div class="app-logo-mark">🛡️</div>
+      <div>
+        <div class="app-logo-text">Guard<em>Desk</em> Pro</div>
+        <div class="logo-sub">OWNER PANEL</div>
+      </div>
+    </div>
+    <div class="app-user">
+      <span class="user-badge badge-owner">👑 CORNELIUS</span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- OWNER NAV TABS -->
+  <div class="workspace-nav">
+    <div class="wnav-tab active" onclick="switchOwnerTab('overview',this)">📊 Overview</div>
+    <div class="wnav-tab" onclick="switchOwnerTab('clients',this)">👥 Clients</div>
+    <div class="wnav-tab" onclick="switchOwnerTab('roster',this)">📸 Officer Roster</div>
+    <div class="wnav-tab" onclick="switchOwnerTab('revenue',this)">💰 Revenue</div>
+    <div class="wnav-tab" onclick="switchOwnerTab('owner-settings',this)">⚙️ My Settings</div>
+    <div class="wnav-tab" onclick="previewWorkspace()">👁️ Preview Workspace</div>
+  </div>
+
+  <div class="app-content">
+
+    <!-- ══ OVERVIEW TAB ══ -->
+    <div id="owner-overview" class="ws-panel active">
+      <div style="margin-bottom:24px">
+        <div style="font-size:22px;font-weight:900;margin-bottom:4px">Good day, Cornelius 👑</div>
+        <div style="font-size:13px;color:var(--muted)" id="owner-date"></div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-row" id="admin-stats">
+        <div class="stat-box"><div class="stat-label">Total Clients</div><div class="stat-val green" id="stat-total">0</div></div>
+        <div class="stat-box"><div class="stat-label">Active</div><div class="stat-val green" id="stat-active">0</div></div>
+        <div class="stat-box"><div class="stat-label">Trial</div><div class="stat-val blue" id="stat-trial">0</div></div>
+        <div class="stat-box"><div class="stat-label">Suspended</div><div class="stat-val red" id="stat-suspended">0</div></div>
+        <div class="stat-box"><div class="stat-label">Monthly Revenue</div><div class="stat-val amber" id="stat-mrr">R0</div></div>
+      </div>
+
+      <!-- PAYMENT DUE REMINDERS -->
+      <div class="client-table-card" style="margin-bottom:20px">
+        <div class="card-head">
+          <div class="card-head-title">🔔 Payment Reminders</div>
+          <span style="font-size:11px;color:var(--amber)">Clients due in next 5 days</span>
+        </div>
+        <div id="payment-reminders" style="padding:16px">
+          <div style="color:var(--muted);font-size:13px;text-align:center;padding:12px">No payments due in the next 5 days ✅</div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="client-table-card">
+        <div class="card-head"><div class="card-head-title">⚡ Quick Actions</div></div>
+        <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+          <button onclick="switchOwnerTab('clients',document.querySelectorAll('.wnav-tab')[1])" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;color:var(--white);font-family:var(--sans);text-align:center;transition:all 0.2s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:24px;margin-bottom:6px">➕</div>
+            <div style="font-size:12px;font-weight:700">Add Client</div>
+          </button>
+          <button onclick="switchOwnerTab('roster',document.querySelectorAll('.wnav-tab')[2])" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;color:var(--white);font-family:var(--sans);text-align:center;transition:all 0.2s" onmouseover="this.style.borderColor='var(--amber)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:24px;margin-bottom:6px">📸</div>
+            <div style="font-size:12px;font-weight:700">Officer Roster</div>
+          </button>
+          <button onclick="switchOwnerTab('revenue',document.querySelectorAll('.wnav-tab')[3])" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;color:var(--white);font-family:var(--sans);text-align:center;transition:all 0.2s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:24px;margin-bottom:6px">💰</div>
+            <div style="font-size:12px;font-weight:700">Revenue</div>
+          </button>
+          <button onclick="previewWorkspace()" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;color:var(--white);font-family:var(--sans);text-align:center;transition:all 0.2s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:24px;margin-bottom:6px">👁️</div>
+            <div style="font-size:12px;font-weight:700">Preview Client View</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CLIENTS TAB ══ -->
+    <div id="owner-clients" class="ws-panel">
+      <div style="margin-bottom:20px">
+        <div style="font-size:20px;font-weight:800;margin-bottom:4px">👥 Client Management</div>
+        <div style="font-size:13px;color:var(--muted)">Add, activate, suspend and manage all your clients</div>
+      </div>
+
+      <!-- ADD CLIENT -->
+      <div class="add-client-card" style="margin-bottom:20px">
+        <div class="card-head">
+          <div class="card-head-title">➕ Add New Client</div>
+        </div>
+        <div class="card-body">
+          <div class="form-grid-2">
+            <div>
+              <label class="admin-label">Client Full Name</label>
+              <input class="admin-input" id="new-name" placeholder="e.g. Sipho Dlamini">
+            </div>
+            <div>
+              <label class="admin-label">Company Name</label>
+              <input class="admin-input" id="new-company" placeholder="e.g. SecureCo Pty Ltd">
+            </div>
+            <div>
+              <label class="admin-label">Username (they use to login)</label>
+              <input class="admin-input" id="new-username" placeholder="e.g. sipho2026" oninput="updateCredPreview()">
+            </div>
+            <div>
+              <label class="admin-label">Password</label>
+              <div style="position:relative">
+                <input class="admin-input" id="new-password" placeholder="e.g. Guard@2026" type="text" oninput="updateCredPreview()" style="padding-right:40px">
+                <button type="button" onclick="togglePass('new-password',this)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px">🙈</button>
+              </div>
+            </div>
+            <div>
+              <label class="admin-label">Plan</label>
+              <select class="admin-select" id="new-plan">
+                <option value="299">Starter — R299/month</option>
+                <option value="499" selected>Professional — R499/month</option>
+                <option value="999">Enterprise — R999/month</option>
+                <option value="2500">White Label — R2,500/month</option>
+              </select>
+            </div>
+            <div>
+              <label class="admin-label">Status</label>
+              <select class="admin-select" id="new-status">
+                <option value="trial">Trial (14 days free)</option>
+                <option value="active">Active (paid)</option>
+                <option value="suspended">Suspended</option>
+              </select>
+            </div>
+            <div>
+              <label class="admin-label">Payment Due Date</label>
+              <input class="admin-input" id="new-due" type="date">
+            </div>
+            <div>
+              <label class="admin-label">WhatsApp Number</label>
+              <input class="admin-input" id="new-wa" placeholder="e.g. 0821234567">
+            </div>
+            <div class="fg-full" id="cred-preview" style="display:none;background:rgba(0,200,150,0.06);border:1px solid rgba(0,200,150,0.25);border-radius:8px;padding:12px 16px;font-size:12px;margin-top:4px">
+              <div style="color:var(--green);font-weight:700;margin-bottom:6px">✅ Client login details — send exactly this via WhatsApp:</div>
+              <div style="font-family:var(--mono);color:var(--white);margin-bottom:2px">🌐 Link: guardeskfullsystem.netlify.app</div>
+              <div style="font-family:var(--mono);color:var(--white);margin-bottom:2px">👤 Username: <strong id="preview-user"></strong></div>
+              <div style="font-family:var(--mono);color:var(--white)">🔑 Password: <strong id="preview-pass"></strong></div>
+            </div>
+            <div class="fg-full" style="display:flex;justify-content:flex-end;gap:10px;margin-top:4px">
+              <button class="btn-act btn-copy-cred" onclick="generateCredentials()" style="padding:9px 16px;font-size:12px">🎲 Auto-Generate Login</button>
+              <button class="btn-add" onclick="addClient()">➕ Add Client</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLIENT TABLE -->
+      <div class="client-table-card">
+        <div class="card-head">
+          <div class="card-head-title">👥 All Clients</div>
+          <span style="font-size:12px;color:var(--muted)" id="client-count">0 clients</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="client-table">
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Username / Password</th>
+                <th>Plan</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="client-tbody">
+              <tr><td colspan="6" class="empty-state">No clients yet — add your first client above</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ OFFICER ROSTER TAB ══ -->
+    <div id="owner-roster" class="ws-panel">
+      <div style="margin-bottom:20px">
+        <div style="font-size:20px;font-weight:800;margin-bottom:4px">📸 Officer Activity Roster</div>
+        <div style="font-size:13px;color:var(--muted)" id="roster-date">Today's officer activity</div>
+      </div>
+      <div class="client-table-card">
+        <div class="card-head">
+          <div class="card-head-title">Active Officers — Today</div>
+          <button onclick="renderActivityRoster()" style="background:var(--surface3);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:var(--sans);font-size:11px;padding:5px 12px;cursor:pointer">🔄 Refresh</button>
+        </div>
+        <div id="roster-grid" style="padding:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px">
+          <div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:28px;font-size:13px">No officer activity recorded yet today</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ REVENUE TAB ══ -->
+    <div id="owner-revenue" class="ws-panel">
+      <div style="margin-bottom:20px">
+        <div style="font-size:20px;font-weight:800;margin-bottom:4px">💰 Revenue Dashboard</div>
+        <div style="font-size:13px;color:var(--muted)">Your monthly recurring income from GuardDesk Pro</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px">
+        <div class="stat-box" style="text-align:center">
+          <div class="stat-label">Monthly Revenue</div>
+          <div class="stat-val amber" id="rev-mrr">R0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Active clients only</div>
+        </div>
+        <div class="stat-box" style="text-align:center">
+          <div class="stat-label">Annual Projection</div>
+          <div class="stat-val green" id="rev-annual">R0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">If retained all year</div>
+        </div>
+        <div class="stat-box" style="text-align:center">
+          <div class="stat-label">Trial Pipeline</div>
+          <div class="stat-val blue" id="rev-pipeline">R0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Converts if trials pay</div>
+        </div>
+        <div class="stat-box" style="text-align:center">
+          <div class="stat-label">Lost Revenue</div>
+          <div class="stat-val red" id="rev-lost">R0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Suspended accounts</div>
+        </div>
+      </div>
+
+      <!-- REVENUE BREAKDOWN -->
+      <div class="client-table-card">
+        <div class="card-head"><div class="card-head-title">📋 Revenue by Plan</div></div>
+        <div id="revenue-breakdown" style="padding:16px">
+          <div style="color:var(--muted);text-align:center;font-size:13px;padding:16px">Add clients to see revenue breakdown</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ OWNER SETTINGS TAB ══ -->
+    <div id="owner-settings-panel" class="ws-panel">
+      <div style="margin-bottom:20px">
+        <div style="font-size:20px;font-weight:800;margin-bottom:4px">⚙️ Owner Settings</div>
+        <div style="font-size:13px;color:var(--muted)">Your personal preferences and business details</div>
+      </div>
+
+      <!-- BUSINESS DETAILS -->
+      <div class="add-client-card" style="margin-bottom:16px">
+        <div class="card-head"><div class="card-head-title">🏢 Your Business Details</div></div>
+        <div class="card-body">
+          <div class="form-grid-2">
+            <div><label class="admin-label">Your Full Name</label><input class="admin-input" id="owner-full-name" placeholder="Cornelius Dlamini" value="Cornelius Dlamini"></div>
+            <div><label class="admin-label">Business Name</label><input class="admin-input" id="owner-biz-name" placeholder="GuardDesk Pro" value="GuardDesk Pro"></div>
+            <div><label class="admin-label">Your Email</label><input class="admin-input" id="owner-email" placeholder="cornelius@guarddeskpro.co.za" type="email"></div>
+            <div><label class="admin-label">WhatsApp Number</label><input class="admin-input" id="owner-phone" placeholder="083 940 8678" value="083 940 8678"></div>
+            <div><label class="admin-label">Bank Name</label><input class="admin-input" id="owner-bank" placeholder="e.g. FNB / Capitec / Standard Bank"></div>
+            <div><label class="admin-label">Account Number</label><input class="admin-input" id="owner-acc" placeholder="Your account number"></div>
+          </div>
+          <button onclick="saveOwnerSettings()" class="btn-add" style="margin-top:14px;width:100%;padding:11px">💾 Save Business Details</button>
+        </div>
+      </div>
+
+      <!-- OWNER LANGUAGE -->
+      <div class="add-client-card" style="margin-bottom:16px">
+        <div class="card-head"><div class="card-head-title">🌍 Owner Language</div></div>
+        <div class="card-body">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Choose your preferred language for the owner panel</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px">
+            <div class="lang-opt owner-lang active" data-lang="en" onclick="selectOwnerLang('en',this)">🇿🇦 English</div>
+            <div class="lang-opt owner-lang" data-lang="zu" onclick="selectOwnerLang('zu',this)">isiZulu</div>
+            <div class="lang-opt owner-lang" data-lang="xh" onclick="selectOwnerLang('xh',this)">isiXhosa</div>
+            <div class="lang-opt owner-lang" data-lang="af" onclick="selectOwnerLang('af',this)">Afrikaans</div>
+            <div class="lang-opt owner-lang" data-lang="nso" onclick="selectOwnerLang('nso',this)">Sepedi</div>
+            <div class="lang-opt owner-lang" data-lang="tn" onclick="selectOwnerLang('tn',this)">Setswana</div>
+            <div class="lang-opt owner-lang" data-lang="st" onclick="selectOwnerLang('st',this)">Sesotho</div>
+            <div class="lang-opt owner-lang" data-lang="ts" onclick="selectOwnerLang('ts',this)">Xitsonga</div>
+            <div class="lang-opt owner-lang" data-lang="ss" onclick="selectOwnerLang('ss',this)">siSwati</div>
+            <div class="lang-opt owner-lang" data-lang="ve" onclick="selectOwnerLang('ve',this)">Tshivenda</div>
+            <div class="lang-opt owner-lang" data-lang="nr" onclick="selectOwnerLang('nr',this)">isiNdebele</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OWNER THEME -->
+      <div class="add-client-card" style="margin-bottom:16px">
+        <div class="card-head"><div class="card-head-title">🎨 Owner Panel Theme</div></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px">
+            <div onclick="selectOwnerTheme('green',this)" style="cursor:pointer;border:2px solid var(--border);border-radius:8px;padding:10px;text-align:center;transition:all 0.2s" class="owner-theme-opt active-theme">
+              <div style="height:24px;border-radius:4px;background:linear-gradient(135deg,#00C896,#0D1B2E);margin-bottom:6px"></div>
+              <div style="font-size:10px;font-weight:700">Emerald</div>
+            </div>
+            <div onclick="selectOwnerTheme('blue',this)" style="cursor:pointer;border:2px solid var(--border);border-radius:8px;padding:10px;text-align:center;transition:all 0.2s" class="owner-theme-opt">
+              <div style="height:24px;border-radius:4px;background:linear-gradient(135deg,#2D7DD2,#0D1B2E);margin-bottom:6px"></div>
+              <div style="font-size:10px;font-weight:700">Ocean Blue</div>
+            </div>
+            <div onclick="selectOwnerTheme('amber',this)" style="cursor:pointer;border:2px solid var(--border);border-radius:8px;padding:10px;text-align:center;transition:all 0.2s" class="owner-theme-opt">
+              <div style="height:24px;border-radius:4px;background:linear-gradient(135deg,#F5A623,#0D1B2E);margin-bottom:6px"></div>
+              <div style="font-size:10px;font-weight:700">Amber Gold</div>
+            </div>
+            <div onclick="selectOwnerTheme('purple',this)" style="cursor:pointer;border:2px solid var(--border);border-radius:8px;padding:10px;text-align:center;transition:all 0.2s" class="owner-theme-opt">
+              <div style="height:24px;border-radius:4px;background:linear-gradient(135deg,#A855F7,#0D1B2E);margin-bottom:6px"></div>
+              <div style="font-size:10px;font-weight:700">Royal Purple</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DANGER ZONE -->
+      <div style="background:rgba(229,56,59,0.06);border:1px solid rgba(229,56,59,0.2);border-radius:12px;padding:20px">
+        <div style="font-size:13px;font-weight:800;color:var(--red);margin-bottom:8px">⚠️ Danger Zone</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Clear all test data and restore the demo client. Only use this for testing.</div>
+        <button onclick="resetDemoData()" style="background:rgba(229,56,59,0.1);border:1px solid rgba(229,56,59,0.3);border-radius:8px;color:var(--red);font-family:var(--sans);font-size:12px;font-weight:700;padding:9px 18px;cursor:pointer">🔄 Reset All Test Data</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     CLIENT WORKSPACE SCREEN
+══════════════════════════════════ -->
+<div id="screen-client" class="screen app-layout">
+  <div class="app-header">
+    <div class="app-logo">
+      <div class="app-logo-mark">🛡️</div>
+      <div>
+        <div class="app-logo-text">Guard<em>Desk</em> Pro</div>
+      </div>
+    </div>
+    <div class="app-user">
+      <span class="user-badge badge-client" id="client-badge">👮 CLIENT</span>
+      <button id="back-to-admin-btn" onclick="backToAdmin()" style="display:none;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);border-radius:7px;color:var(--amber);font-family:var(--sans);font-size:12px;font-weight:700;padding:6px 12px;cursor:pointer;align-items:center;gap:6px">
+        ← Back to Admin
+      </button>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="workspace-nav">
+    <div class="wnav-tab active" onclick="switchWsTab('dashboard',this)">📊 Dashboard</div>
+    <div class="wnav-tab" onclick="switchWsTab('incident',this)">🚨 Incident Report</div>
+    <div class="wnav-tab" onclick="switchWsTab('hourly',this)">🕐 Hourly Report</div>
+    <div class="wnav-tab" onclick="switchWsTab('handover',this)">🔄 Shift Handover</div>
+    <div class="wnav-tab" onclick="switchWsTab('access',this)">🚗 Access Control</div>
+    <div class="wnav-tab" onclick="switchWsTab('email',this)">📧 Notify Manager</div>
+    <div class="wnav-tab" onclick="switchWsTab('clocking',this)">📍 Clocking Points</div>
+    <div class="wnav-tab" onclick="switchWsTab('settings',this)">⚙️ Settings</div>
+  </div>
+
+  <!-- INCIDENT -->
+  <div id="ws-incident" class="ws-panel active">
+    <div class="ws-content">
+      <div id="client-info-banner" class="client-info-banner">
+        <div class="cib-left">
+          <div class="cib-avatar" id="cib-initial">?</div>
+          <div>
+            <div class="cib-name" id="cib-name">Loading...</div>
+            <div class="cib-plan" id="cib-plan">Plan loading...</div>
+          </div>
+        </div>
+        <div class="cib-right">
+          <span class="due-chip" id="cib-due">Loading...</span>
+        </div>
+      </div>
+
+      <div class="ws-card">
+        <div class="ws-card-head"><div class="ws-card-title">👮 Officer & Site Info</div></div>
+        <div class="ws-card-body">
+          <div class="ws-form-grid">
+            <div><label class="ws-label">Officer Name</label><input class="ws-input" id="i-officer" placeholder="e.g. Sipho Dlamini"></div>
+            <div><label class="ws-label">PSIRA / Badge No</label><input class="ws-input" id="i-badge" placeholder="e.g. 1234567890"></div>
+            <div><label class="ws-label">Site / Location</label><input class="ws-input" id="i-site" placeholder="e.g. Sandton City — Gate B"></div>
+            <div><label class="ws-label">Date</label><input type="date" class="ws-input" id="i-date"></div>
+            <div><label class="ws-label">Time of Incident</label><input type="time" class="ws-input" id="i-time"></div>
+            <div>
+              <label class="ws-label">Shift</label>
+              <select class="ws-select" id="i-shift">
+                <option>Day Shift (06:00–18:00)</option>
+                <option>Night Shift (18:00–06:00)</option>
+                <option>Morning Shift</option>
+                <option>Afternoon Shift</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ws-card">
+        <div class="ws-card-head"><div class="ws-card-title">⚠️ Incident Type</div></div>
+        <div class="ws-card-body">
+          <div class="ws-pills">
+            <div class="ws-pill" onclick="this.classList.toggle('active')">Theft / Shoplifting</div>
+            <div class="ws-pill" onclick="this.classList.toggle('active')">Armed Robbery</div>
+            <div class="ws-pill" onclick="this.classList.toggle('active')">Physical Assault</div>
+            <div class="ws-pill" onclick="this.classList.toggle('active')">Trespassing</div>
+            <div class="ws-pill" onclick="this.classList.toggle('active')">Vandalism</div>
+            <div class="ws-pill" onclick="this.classList.toggle('active')">Suspicious Person</div>
+            <div class="ws-pill" onclick="this.classList.toggle('active')">Unauthorised Access</div>
+            <div class="ws-pill" onclick="this.classList.toggle('active')">Medical Emergency</div>
+            <div class="ws-pill" onclick="this.classList.toggle('active')">Motor Vehicle Accident</div>
+            <div class="ws-pill" onclick="this.classList.toggle('active')">Fire / Evacuation</div>
+            <div class="ws-pill" onclick="this.classList.toggle('active')">Alarm Activation</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ws-card">
+        <div class="ws-card-head"><div class="ws-card-title">📝 Incident Details</div></div>
+        <div class="ws-card-body">
+          <div class="ws-form-grid">
+            <div class="ws-fg-full"><label class="ws-label">What happened? (rough notes are fine)</label><textarea class="ws-textarea" id="i-desc" placeholder="e.g. At 14:30 a male suspect was seen concealing items..." style="min-height:90px"></textarea></div>
+            <div><label class="ws-label">Suspect Description</label><input class="ws-input" id="i-suspect" placeholder="e.g. Male, ±30yrs, black hoodie"></div>
+            <div><label class="ws-label">Action Taken</label><input class="ws-input" id="i-action" placeholder="e.g. Detained, SAPS notified"></div>
+            <div><label class="ws-label">SAPS Case Number</label><input class="ws-input" id="i-saps" placeholder="e.g. CAS 123/06/2026"></div>
+            <div><label class="ws-label">Outcome</label><input class="ws-input" id="i-outcome" placeholder="e.g. Suspect handed to SAPS"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-generate" id="btn-incident" onclick="generateWsReport('incident')">🛡️ Generate Incident Report in 60 Seconds</button>
+      <div class="ws-loading" id="load-incident"><div class="spinner"></div><p>Writing your professional report...</p></div>
+      <div class="ws-output" id="out-incident">
+        <div class="ws-out-head">
+          <strong>✅ INCIDENT REPORT READY</strong>
+          <div class="ws-out-actions">
+            <button class="ws-act-btn" onclick="copyOut('out-incident')">📋 Copy</button>
+            <button class="ws-act-btn" onclick="printOut('out-incident')">🖨️ Print</button>
+          </div>
+        </div>
+        <div class="ws-out-body" id="text-incident"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOURLY -->
+  <div id="ws-hourly" class="ws-panel">
+    <div class="ws-content">
+      <div class="ws-card">
+        <div class="ws-card-head"><div class="ws-card-title">🕐 Hourly Patrol Details</div></div>
+        <div class="ws-card-body">
+          <div class="ws-form-grid">
+            <div><label class="ws-label">Officer Name</label><input class="ws-input" id="h-officer" placeholder="Officer name"></div>
+            <div><label class="ws-label">Site</label><input class="ws-input" id="h-site" placeholder="Site name"></div>
+            <div><label class="ws-label">Date</label><input type="date" class="ws-input" id="h-date"></div>
+            <div><label class="ws-label">Patrol Time</label><input type="time" class="ws-input" id="h-time"></div>
+            <div class="ws-fg-full">
+              <label class="ws-label">Site Status</label>
+              <select class="ws-select" id="h-status">
+                <option>✅ All Clear — No Incidents</option>
+                <option>⚠️ Minor Issue — Noted & Monitored</option>
+                <option>🚨 Incident Occurred</option>
+              </select>
+            </div>
+            <div class="ws-fg-full"><label class="ws-label">Areas Patrolled</label>
+              <div class="ws-pills">
+                <div class="ws-pill" onclick="this.classList.toggle('active')">Main Entrance</div>
+                <div class="ws-pill" onclick="this.classList.toggle('active')">Parking Area</div>
+                <div class="ws-pill" onclick="this.classList.toggle('active')">Perimeter</div>
+                <div class="ws-pill" onclick="this.classList.toggle('active')">Loading Bay</div>
+                <div class="ws-pill" onclick="this.classList.toggle('active')">Control Room</div>
+                <div class="ws-pill" onclick="this.classList.toggle('active')">Fire Exits</div>
+                <div class="ws-pill" onclick="this.classList.toggle('active')">Basement</div>
+                <div class="ws-pill" onclick="this.classList.toggle('active')">All Areas</div>
+              </div>
+            </div>
+            <div class="ws-fg-full"><label class="ws-label">Patrol Observations</label><textarea class="ws-textarea" id="h-notes" placeholder="e.g. All fire exits clear. No suspicious persons. Lighting fault at north gate reported to maintenance..."></textarea></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-generate" id="btn-hourly" onclick="generateWsReport('hourly')">🕐 Generate Hourly Patrol Report</button>
+      <div class="ws-loading" id="load-hourly"><div class="spinner"></div><p>Writing your patrol report...</p></div>
+      <div class="ws-output" id="out-hourly">
+        <div class="ws-out-head"><strong>✅ HOURLY REPORT READY</strong><div class="ws-out-actions"><button class="ws-act-btn" onclick="copyOut('out-hourly')">📋 Copy</button><button class="ws-act-btn" onclick="printOut('out-hourly')">🖨️ Print</button></div></div>
+        <div class="ws-out-body" id="text-hourly"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HANDOVER -->
+  <div id="ws-handover" class="ws-panel">
+    <div class="ws-content">
+      <div class="ws-card">
+        <div class="ws-card-head"><div class="ws-card-title">🔄 Shift Handover</div></div>
+        <div class="ws-card-body">
+          <div class="ws-form-grid">
+            <div><label class="ws-label">Outgoing Officer</label><input class="ws-input" id="ho-out" placeholder="Name & PSIRA No"></div>
+            <div><label class="ws-label">Incoming Officer</label><input class="ws-input" id="ho-in" placeholder="Name & PSIRA No"></div>
+            <div><label class="ws-label">Site</label><input class="ws-input" id="ho-site" placeholder="Site name"></div>
+            <div><label class="ws-label">Handover Time</label><input type="time" class="ws-input" id="ho-time"></div>
+            <div class="ws-fg-full"><label class="ws-label">Incidents During Shift</label><textarea class="ws-textarea" id="ho-incidents" placeholder="List any incidents — or type 'None' if clear shift"></textarea></div>
+            <div class="ws-fg-full"><label class="ws-label">Outstanding Issues</label><textarea class="ws-textarea" id="ho-outstanding" placeholder="e.g. Broken gate latch at loading bay — awaiting maintenance..."></textarea></div>
+            <div class="ws-fg-full"><label class="ws-label">Equipment Status</label><textarea class="ws-textarea" id="ho-equipment" placeholder="e.g. 3 radios handed over, all charged. DVR recording confirmed..."></textarea></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-generate" id="btn-handover" onclick="generateWsReport('handover')">🔄 Generate Handover Report</button>
+      <div class="ws-loading" id="load-handover"><div class="spinner"></div><p>Writing your handover report...</p></div>
+      <div class="ws-output" id="out-handover">
+        <div class="ws-out-head"><strong>✅ HANDOVER REPORT READY</strong><div class="ws-out-actions"><button class="ws-act-btn" onclick="copyOut('out-handover')">📋 Copy</button><button class="ws-act-btn" onclick="printOut('out-handover')">🖨️ Print</button></div></div>
+        <div class="ws-out-body" id="text-handover"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCESS -->
+  <div id="ws-access" class="ws-panel">
+    <div class="ws-content">
+      <div class="ws-card">
+        <div class="ws-card-head"><div class="ws-card-title">🚗 Access Control Entry</div></div>
+        <div class="ws-card-body">
+          <div class="ws-form-grid">
+            <div><label class="ws-label">Officer on Duty</label><input class="ws-input" id="a-officer" placeholder="Name & Badge No"></div>
+            <div><label class="ws-label">Site / Access Point</label><input class="ws-input" id="a-site" placeholder="e.g. Main Gate"></div>
+            <div><label class="ws-label">Visitor Name</label><input class="ws-input" id="a-name" placeholder="Full name"></div>
+            <div><label class="ws-label">ID Number</label><input class="ws-input" id="a-id" placeholder="SA ID or Passport No"></div>
+            <div><label class="ws-label">Vehicle Reg</label><input class="ws-input" id="a-vehicle" placeholder="e.g. CA 123-456 GP"></div>
+            <div><label class="ws-label">Purpose of Visit</label><input class="ws-input" id="a-purpose" placeholder="e.g. HVAC maintenance"></div>
+            <div><label class="ws-label">Time In</label><input type="time" class="ws-input" id="a-timein"></div>
+            <div><label class="ws-label">Time Out</label><input type="time" class="ws-input" id="a-timeout"></div>
+            <div class="ws-fg-full">
+              <label class="ws-label">Access Decision</label>
+              <select class="ws-select" id="a-granted">
+                <option>Yes — access granted</option>
+                <option>No — access denied</option>
+                <option>Conditional — escort required</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-generate" id="btn-access" onclick="generateWsReport('access')">🚗 Generate Access Log</button>
+      <div class="ws-loading" id="load-access"><div class="spinner"></div><p>Generating access record...</p></div>
+      <div class="ws-output" id="out-access">
+        <div class="ws-out-head"><strong>✅ ACCESS LOG READY</strong><div class="ws-out-actions"><button class="ws-act-btn" onclick="copyOut('out-access')">📋 Copy</button><button class="ws-act-btn" onclick="printOut('out-access')">🖨️ Print</button></div></div>
+        <div class="ws-out-body" id="text-access"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMAIL -->
+  <div id="ws-email" class="ws-panel">
+    <div class="ws-content">
+      <div class="ws-card">
+        <div class="ws-card-head"><div class="ws-card-title">📧 Notify Manager / Client</div></div>
+        <div class="ws-card-body">
+          <div class="ws-form-grid">
+            <div><label class="ws-label">From (Your Name & Role)</label><input class="ws-input" id="e-from" placeholder="e.g. Sipho Dlamini — Supervisor"></div>
+            <div><label class="ws-label">Site</label><input class="ws-input" id="e-site" placeholder="Site name"></div>
+            <div>
+              <label class="ws-label">Send To</label>
+              <select class="ws-select" id="e-to">
+                <option>Operations Manager</option>
+                <option>Client</option>
+                <option>Both Operations Manager and Client</option>
+              </select>
+            </div>
+            <div>
+              <label class="ws-label">Report Type</label>
+              <select class="ws-select" id="e-type">
+                <option>Incident Report Notification</option>
+                <option>End of Shift Summary</option>
+                <option>Urgent Security Alert</option>
+                <option>Weekly Site Report</option>
+                <option>Equipment Issue</option>
+              </select>
+            </div>
+            <div class="ws-fg-full"><label class="ws-label">Key Points to Include</label><textarea class="ws-textarea" id="e-points" placeholder="e.g. Theft incident at Gate B at 14:30. Suspect detained. SAPS case opened..."></textarea></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-generate" id="btn-email" onclick="generateWsReport('email')" style="background:var(--amber)">📧 Generate Professional Email</button>
+      <div class="ws-loading" id="load-email"><div class="spinner"></div><p>Composing your email...</p></div>
+      <div class="ws-output" id="out-email">
+        <div class="ws-out-head" style="background:var(--amber)"><strong>✅ EMAIL READY</strong><div class="ws-out-actions"><button class="ws-act-btn" onclick="copyOut('out-email')">📋 Copy</button><button class="ws-act-btn" onclick="openMailto()">📤 Open in Mail</button></div></div>
+        <div class="ws-out-body" id="text-email"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- CLOCKING POINTS -->
+  <div id="ws-clocking" class="ws-panel">
+    <div class="ws-content">
+
+      <!-- SETUP PATROL POINTS -->
+      <div class="ws-card">
+        <div class="ws-card-head">
+          <div class="ws-card-title">📍 Setup Patrol Points</div>
+          <span style="font-size:11px;color:var(--muted)">Add all checkpoints for this site</span>
+        </div>
+        <div class="ws-card-body">
+          <div class="ws-form-grid">
+            <div><label class="ws-label">Site Name</label><input class="ws-input" id="cp-site" placeholder="e.g. Sandton City Mall"></div>
+            <div><label class="ws-label">Officer Name</label><input class="ws-input" id="cp-officer" placeholder="e.g. Sipho Dlamini"></div>
+            <div><label class="ws-label">Shift Date</label><input type="date" class="ws-input" id="cp-date"></div>
+            <div>
+              <label class="ws-label">Shift</label>
+              <select class="ws-select" id="cp-shift">
+                <option>Day Shift (06:00–18:00)</option>
+                <option>Night Shift (18:00–06:00)</option>
+                <option>Morning Shift (06:00–14:00)</option>
+                <option>Afternoon Shift (14:00–22:00)</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:16px">
+            <label class="ws-label">Add Checkpoint / Patrol Point</label>
+            <div style="display:flex;gap:10px;margin-top:5px">
+              <input class="ws-input" id="cp-point-name" placeholder="e.g. Main Entrance, Parking Level 2, Back Gate..." style="flex:1">
+              <button onclick="addPatrolPoint()" style="background:var(--green);color:var(--bg);border:none;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:700;padding:9px 18px;cursor:pointer;flex-shrink:0">+ Add</button>
+            </div>
+          </div>
+          <div id="patrol-points-list" style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:12px;color:var(--muted2);text-align:center;padding:12px">No patrol points added yet — add your first checkpoint above</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE CLOCKING -->
+      <div class="ws-card">
+        <div class="ws-card-head">
+          <div class="ws-card-title">⏱️ Live Patrol Clocking</div>
+          <div id="clock-live" style="font-family:var(--mono);font-size:13px;color:var(--green);font-weight:700"></div>
+        </div>
+        <div class="ws-card-body">
+          <div style="background:rgba(0,200,150,0.05);border:1px solid rgba(0,200,150,0.15);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--muted)">
+            💡 Officer taps <strong style="color:var(--green)">Clock IN</strong> when arriving at a checkpoint and <strong style="color:var(--green)">Clock OUT</strong> when leaving. Time and duration are recorded automatically.
+          </div>
+          <div id="clocking-buttons" style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:12px;color:var(--muted2);text-align:center;padding:16px">Add patrol points above to start clocking</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATROL LOG -->
+      <div class="ws-card">
+        <div class="ws-card-head">
+          <div class="ws-card-title">📋 Patrol Log — This Shift</div>
+          <button onclick="clearClockingLog()" style="background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;padding:5px 11px;cursor:pointer">🗑️ Clear Log</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px" id="clock-log-table">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border)">Checkpoint</th>
+                <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border)">Clock In</th>
+                <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border)">Clock Out</th>
+                <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border)">Duration</th>
+                <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border)">Status</th>
+              </tr>
+            </thead>
+            <tbody id="clock-log-body">
+              <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;font-size:13px">No clocking records yet — start your patrol above</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:20px;font-size:12px;color:var(--muted)">
+          <span>Points visited: <strong style="color:var(--green)" id="points-visited">0</strong></span>
+          <span>Points missed: <strong style="color:var(--red)" id="points-missed">0</strong></span>
+          <span>Total patrol time: <strong style="color:var(--white)" id="total-patrol-time">0 min</strong></span>
+        </div>
+      </div>
+
+      <!-- GENERATE CLOCKING REPORT -->
+      <button class="btn-generate" id="btn-clocking" onclick="generateClockingReport()" style="background:var(--blue)">📍 Generate Clocking Report</button>
+      <div class="ws-loading" id="load-clocking"><div class="spinner"></div><p>Generating your patrol clocking report...</p></div>
+      <div class="ws-output" id="out-clocking">
+        <div class="ws-out-head" style="background:var(--blue)">
+          <strong>✅ CLOCKING REPORT READY</strong>
+          <div class="ws-out-actions">
+            <button class="ws-act-btn" onclick="copyOut('out-clocking')">📋 Copy</button>
+            <button class="ws-act-btn" onclick="printOut('out-clocking')">🖨️ Print</button>
+          </div>
+        </div>
+        <div class="ws-out-body" id="text-clocking"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  <!-- DASHBOARD -->
+  <div id="ws-dashboard" class="ws-panel active">
+    <div class="ws-content">
+      <div style="margin-bottom:24px">
+        <div style="font-size:20px;font-weight:800;margin-bottom:4px">Good day, <span id="dash-client-name" style="color:var(--green)">Officer</span> 👋</div>
+        <div style="font-size:13px;color:var(--muted)" id="dash-date-time"></div>
+      </div>
+
+      <!-- STATS -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:24px">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:900;color:var(--green)" id="dash-total">0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Reports Today</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:900;color:var(--red)" id="dash-incidents">0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Incidents</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:900;color:var(--amber)" id="dash-patrols">0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Patrol Reports</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:900;color:var(--blue)" id="dash-emails">0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Emails Sent</div>
+        </div>
+      </div>
+
+      <!-- EMAIL RECIPIENTS QUICK VIEW -->
+      <div class="ws-card" style="margin-bottom:20px">
+        <div class="ws-card-head">
+          <div class="ws-card-title">📧 Email Recipients</div>
+          <button onclick="switchWsTab('settings',document.querySelectorAll('.wnav-tab')[7])" style="background:var(--surface3);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;padding:5px 11px;cursor:pointer">⚙️ Edit</button>
+        </div>
+        <div class="ws-card-body" style="display:flex;gap:20px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;font-weight:700">Ops Manager</div>
+            <div style="font-size:13px;font-weight:600" id="dash-mgr-email">Not set — go to Settings</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;font-weight:700">Client</div>
+            <div style="font-size:13px;font-weight:600" id="dash-client-email">Not set — go to Settings</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORT HISTORY -->
+      <div class="ws-card">
+        <div class="ws-card-head">
+          <div class="ws-card-title">📁 Report History — This Session</div>
+          <button onclick="clearReportHistory()" style="background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;padding:5px 11px;cursor:pointer">🗑️ Clear</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border)">Ref</th>
+                <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border)">Type</th>
+                <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border)">Time</th>
+                <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border)">Status</th>
+              </tr>
+            </thead>
+            <tbody id="report-history-body">
+              <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:28px;font-size:13px">No reports generated yet — create your first report above</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:20px">
+        <button onclick="switchWsTab('incident',document.querySelectorAll('.wnav-tab')[1])" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;color:var(--white);font-family:var(--sans);transition:all 0.2s;text-align:center" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="font-size:24px;margin-bottom:8px">🚨</div>
+          <div style="font-size:12px;font-weight:700">Incident Report</div>
+        </button>
+        <button onclick="switchWsTab('hourly',document.querySelectorAll('.wnav-tab')[2])" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;color:var(--white);font-family:var(--sans);transition:all 0.2s;text-align:center" onmouseover="this.style.borderColor='var(--amber)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="font-size:24px;margin-bottom:8px">🕐</div>
+          <div style="font-size:12px;font-weight:700">Hourly Patrol</div>
+        </button>
+        <button onclick="switchWsTab('handover',document.querySelectorAll('.wnav-tab')[3])" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;color:var(--white);font-family:var(--sans);transition:all 0.2s;text-align:center" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="font-size:24px;margin-bottom:8px">🔄</div>
+          <div style="font-size:12px;font-weight:700">Shift Handover</div>
+        </button>
+        <button onclick="switchWsTab('clocking',document.querySelectorAll('.wnav-tab')[6])" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;color:var(--white);font-family:var(--sans);transition:all 0.2s;text-align:center" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="font-size:24px;margin-bottom:8px">📍</div>
+          <div style="font-size:12px;font-weight:700">Clocking Points</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="ws-settings" class="ws-panel">
+    <div class="ws-content">
+      <div style="margin-bottom:24px">
+        <div style="font-size:20px;font-weight:800;margin-bottom:4px" data-i18n="settings_title">⚙️ Settings</div>
+        <div style="font-size:13px;color:var(--muted)" data-i18n="settings_sub">Tap any section below to open it</div>
+      </div>
+
+      <!-- ACCORDION CONTAINER -->
+      <div id="settings-accordion" style="display:flex;flex-direction:column;gap:10px">
+
+        <!-- 1. LANGUAGE -->
+        <div class="acc-item">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:22px">🌍</span>
+              <div>
+                <div style="font-weight:700;font-size:14px" data-i18n="lang_title">Language</div>
+                <div style="font-size:11px;color:var(--muted)" data-i18n="lang_sub">Choose your preferred language</div>
+              </div>
+            </div>
+            <span class="acc-chevron">›</span>
+          </div>
+          <div class="acc-body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;padding:16px">
+              <div class="lang-opt" data-lang="en" onclick="selectLanguage('en')">🇿🇦 English</div>
+              <div class="lang-opt" data-lang="zu" onclick="selectLanguage('zu')">🇿🇦 isiZulu</div>
+              <div class="lang-opt" data-lang="xh" onclick="selectLanguage('xh')">🇿🇦 isiXhosa</div>
+              <div class="lang-opt" data-lang="af" onclick="selectLanguage('af')">🇿🇦 Afrikaans</div>
+              <div class="lang-opt" data-lang="nso" onclick="selectLanguage('nso')">🇿🇦 Sepedi</div>
+              <div class="lang-opt" data-lang="tn" onclick="selectLanguage('tn')">🇿🇦 Setswana</div>
+              <div class="lang-opt" data-lang="st" onclick="selectLanguage('st')">🇿🇦 Sesotho</div>
+              <div class="lang-opt" data-lang="ts" onclick="selectLanguage('ts')">🇿🇦 Xitsonga</div>
+              <div class="lang-opt" data-lang="ss" onclick="selectLanguage('ss')">🇿🇦 siSwati</div>
+              <div class="lang-opt" data-lang="ve" onclick="selectLanguage('ve')">🇿🇦 Tshivenda</div>
+              <div class="lang-opt" data-lang="nr" onclick="selectLanguage('nr')">🇿🇦 isiNdebele</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. PROFILE PHOTO -->
+        <div class="acc-item">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:22px">📸</span>
+              <div>
+                <div style="font-weight:700;font-size:14px" data-i18n="photo_title">Profile Photo</div>
+                <div style="font-size:11px;color:var(--muted)" data-i18n="photo_sub">Upload your officer photo</div>
+              </div>
+            </div>
+            <span class="acc-chevron">›</span>
+          </div>
+          <div class="acc-body">
+            <div style="padding:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+              <div id="profile-photo-preview" style="width:72px;height:72px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:var(--bg);flex-shrink:0;overflow:hidden;border:2px solid var(--border)">?</div>
+              <div style="flex:1;min-width:180px">
+                <div style="font-size:12px;color:var(--muted);margin-bottom:10px" data-i18n="photo_desc">Upload a clear photo — appears on your dashboard and the supervisor roster.</div>
+                <input type="file" id="photo-upload-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+                <button onclick="document.getElementById('photo-upload-input').click()" class="btn-generate" style="margin:0;padding:9px 16px;font-size:12px;width:auto;display:inline-flex" data-i18n="photo_upload">📷 Upload Photo</button>
+                <button onclick="removeProfilePhoto()" style="background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--sans);font-size:12px;font-weight:600;padding:9px 14px;cursor:pointer;margin-left:8px" data-i18n="photo_remove">Remove</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. EMAIL RECIPIENTS -->
+        <div class="acc-item">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:22px">📧</span>
+              <div>
+                <div style="font-weight:700;font-size:14px" data-i18n="email_title">Email Recipients</div>
+                <div style="font-size:11px;color:var(--muted)" data-i18n="email_sub">Set manager and client email addresses</div>
+              </div>
+            </div>
+            <span class="acc-chevron">›</span>
+          </div>
+          <div class="acc-body">
+            <div style="padding:16px">
+              <div style="background:rgba(0,200,150,0.06);border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--green);margin-bottom:14px" data-i18n="email_tip">💡 Saved email addresses are auto-filled every time you send a notification.</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div><label class="ws-label" data-i18n="mgr_email">Manager Email</label><input class="ws-input" id="set-mgr-email" placeholder="manager@company.co.za" type="email"></div>
+                <div><label class="ws-label" data-i18n="mgr_name">Manager Name</label><input class="ws-input" id="set-mgr-name" placeholder="e.g. Mr K. van Wyk"></div>
+                <div><label class="ws-label" data-i18n="client_email">Client Email</label><input class="ws-input" id="set-client-email" placeholder="client@company.co.za" type="email"></div>
+                <div><label class="ws-label" data-i18n="client_name">Client Name</label><input class="ws-input" id="set-client-name" placeholder="e.g. Sandton City Management"></div>
+                <div><label class="ws-label" data-i18n="site_name">Site Name</label><input class="ws-input" id="set-site-name" placeholder="e.g. Sandton City Mall"></div>
+                <div><label class="ws-label" data-i18n="company_name">Security Company</label><input class="ws-input" id="set-company-name" placeholder="e.g. Fidelity Security"></div>
+              </div>
+              <button onclick="saveSettings()" class="btn-generate" style="margin-top:14px;background:var(--green)" data-i18n="save_btn">💾 Save Settings</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. THEME -->
+        <div class="acc-item">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:22px">🎨</span>
+              <div>
+                <div style="font-weight:700;font-size:14px" data-i18n="theme_title">Workspace Theme</div>
+                <div style="font-size:11px;color:var(--muted)" data-i18n="theme_sub">Personalise your workspace colour</div>
+              </div>
+            </div>
+            <span class="acc-chevron">›</span>
+          </div>
+          <div class="acc-body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;padding:16px">
+              <div class="theme-option" data-theme="green" onclick="selectTheme('green')" style="cursor:pointer;border:2px solid var(--border);border-radius:10px;padding:10px;text-align:center;transition:all 0.2s">
+                <div style="height:26px;border-radius:6px;background:linear-gradient(135deg,#00C896,#0D1B2E);margin-bottom:7px"></div>
+                <div style="font-size:10px;font-weight:700">Emerald</div>
+              </div>
+              <div class="theme-option" data-theme="blue" onclick="selectTheme('blue')" style="cursor:pointer;border:2px solid var(--border);border-radius:10px;padding:10px;text-align:center;transition:all 0.2s">
+                <div style="height:26px;border-radius:6px;background:linear-gradient(135deg,#2D7DD2,#0D1B2E);margin-bottom:7px"></div>
+                <div style="font-size:10px;font-weight:700">Ocean</div>
+              </div>
+              <div class="theme-option" data-theme="amber" onclick="selectTheme('amber')" style="cursor:pointer;border:2px solid var(--border);border-radius:10px;padding:10px;text-align:center;transition:all 0.2s">
+                <div style="height:26px;border-radius:6px;background:linear-gradient(135deg,#F5A623,#0D1B2E);margin-bottom:7px"></div>
+                <div style="font-size:10px;font-weight:700">Gold</div>
+              </div>
+              <div class="theme-option" data-theme="purple" onclick="selectTheme('purple')" style="cursor:pointer;border:2px solid var(--border);border-radius:10px;padding:10px;text-align:center;transition:all 0.2s">
+                <div style="height:26px;border-radius:6px;background:linear-gradient(135deg,#A855F7,#0D1B2E);margin-bottom:7px"></div>
+                <div style="font-size:10px;font-weight:700">Purple</div>
+              </div>
+              <div class="theme-option" data-theme="red" onclick="selectTheme('red')" style="cursor:pointer;border:2px solid var(--border);border-radius:10px;padding:10px;text-align:center;transition:all 0.2s">
+                <div style="height:26px;border-radius:6px;background:linear-gradient(135deg,#E5383B,#0D1B2E);margin-bottom:7px"></div>
+                <div style="font-size:10px;font-weight:700">Crimson</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. SOUND -->
+        <div class="acc-item">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:22px">🔊</span>
+              <div>
+                <div style="font-weight:700;font-size:14px" data-i18n="sound_title">Sound Effects</div>
+                <div style="font-size:11px;color:var(--muted)" data-i18n="sound_sub">Button click and success sounds</div>
+              </div>
+            </div>
+            <span class="acc-chevron">›</span>
+          </div>
+          <div class="acc-body">
+            <div style="padding:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+              <div style="font-size:13px;color:var(--muted)" data-i18n="sound_desc">Enable satisfying click sounds on buttons and a success sound when reports are generated.</div>
+              <label style="position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0">
+                <input type="checkbox" id="sound-toggle" onchange="toggleSound()" style="opacity:0;width:0;height:0">
+                <span id="sound-toggle-slider" style="position:absolute;cursor:pointer;inset:0;background:var(--border);border-radius:28px;transition:0.3s"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. CHANGE PASSWORD -->
+        <div class="acc-item">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:22px">🔐</span>
+              <div>
+                <div style="font-weight:700;font-size:14px" data-i18n="pass_title">Change Password</div>
+                <div style="font-size:11px;color:var(--muted)" data-i18n="pass_sub">Update your login password</div>
+              </div>
+            </div>
+            <span class="acc-chevron">›</span>
+          </div>
+          <div class="acc-body">
+            <div style="padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label class="ws-label" data-i18n="new_pass">New Password</label>
+                <div style="position:relative">
+                  <input class="ws-input" id="new-pass-1" type="password" placeholder="Enter new password" style="padding-right:44px">
+                  <button type="button" onclick="togglePass('new-pass-1',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">👁️</button>
+                </div>
+              </div>
+              <div>
+                <label class="ws-label" data-i18n="confirm_pass">Confirm Password</label>
+                <div style="position:relative">
+                  <input class="ws-input" id="new-pass-2" type="password" placeholder="Confirm new password" style="padding-right:44px">
+                  <button type="button" onclick="togglePass('new-pass-2',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">👁️</button>
+                </div>
+              </div>
+              <div style="grid-column:1/-1">
+                <button onclick="changeClientPassword()" class="btn-generate" style="background:var(--blue)" data-i18n="update_pass_btn">🔐 Update Password</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. REFERRAL -->
+        <div class="acc-item" style="border-color:rgba(245,166,35,0.3)">
+          <div class="acc-head" onclick="toggleAcc(this)" style="border-color:rgba(245,166,35,0.3)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:22px">💰</span>
+              <div>
+                <div style="font-weight:700;font-size:14px;color:var(--amber)" data-i18n="ref_title">Refer & Earn</div>
+                <div style="font-size:11px;color:var(--muted)" data-i18n="ref_sub">Share GuardDesk Pro and earn commission</div>
+              </div>
+            </div>
+            <span class="acc-chevron" style="color:var(--amber)">›</span>
+          </div>
+          <div class="acc-body">
+            <div style="padding:16px">
+              <div style="background:linear-gradient(135deg,rgba(245,166,35,0.1),rgba(0,200,150,0.06));border:1px solid rgba(245,166,35,0.2);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center">
+                <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+                  <div><div style="font-size:18px;font-weight:900;color:var(--amber)">R75</div><div style="font-size:10px;color:var(--muted)">Starter</div></div>
+                  <div><div style="font-size:18px;font-weight:900;color:var(--amber)">R150</div><div style="font-size:10px;color:var(--muted)">Professional</div></div>
+                  <div><div style="font-size:18px;font-weight:900;color:var(--amber)">R300</div><div style="font-size:10px;color:var(--muted)">Enterprise</div></div>
+                </div>
+              </div>
+              <label class="ws-label" data-i18n="ref_link">Your Referral Link</label>
+              <div style="display:flex;gap:8px;margin-bottom:12px">
+                <input class="ws-input" id="referral-link-display" readonly style="flex:1;font-family:var(--mono);font-size:11px;color:var(--green)">
+                <button onclick="copyReferralLink()" style="background:var(--amber);color:var(--bg);border:none;border-radius:8px;font-family:var(--sans);font-size:12px;font-weight:700;padding:9px 14px;cursor:pointer;flex-shrink:0" data-i18n="copy_btn">📋 Copy</button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:900;color:var(--green)" id="ref-clicks">0</div><div style="font-size:9px;color:var(--muted)" data-i18n="ref_clicks">Clicks</div></div>
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:900;color:var(--blue)" id="ref-signups">0</div><div style="font-size:9px;color:var(--muted)" data-i18n="ref_signups">Signups</div></div>
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:900;color:var(--amber)" id="ref-earned">R0</div><div style="font-size:9px;color:var(--muted)" data-i18n="ref_earned">Earned</div></div>
+              </div>
+              <button onclick="shareReferralWhatsApp()" style="width:100%;background:#25D366;color:#fff;border:none;border-radius:9px;font-family:var(--sans);font-size:13px;font-weight:700;padding:12px;cursor:pointer" data-i18n="wa_share">💬 Share on WhatsApp</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. SUPPORT -->
+        <div class="acc-item">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:22px">🆘</span>
+              <div>
+                <div style="font-weight:700;font-size:14px" data-i18n="support_title">Help & Support</div>
+                <div style="font-size:11px;color:var(--muted)" data-i18n="support_sub">Contact GuardDesk Pro</div>
+              </div>
+            </div>
+            <span class="acc-chevron">›</span>
+          </div>
+          <div class="acc-body">
+            <div style="padding:16px;text-align:center">
+              <div style="font-size:13px;color:var(--muted);margin-bottom:14px" data-i18n="support_desc">Need help? Contact Cornelius directly on WhatsApp for immediate support.</div>
+              <a href="https://wa.me/27839408678?text=Hi%20Cornelius%2C%20I%20need%20help%20with%20my%20GuardDesk%20Pro%20account" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:11px 24px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none" data-i18n="support_btn">
+                💬 WhatsApp — 083 940 8678
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end accordion -->
+    </div>
+  </div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">Confirm Action</div>
+    <div class="modal-body" id="modal-body">Are you sure?</div>
+    <div class="modal-btns">
+      <button class="modal-btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn-confirm" id="modal-confirm-btn" onclick="confirmAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- COPYRIGHT FOOTER -->
+<div style="background:var(--surface);border-top:1px solid var(--border);padding:14px 24px;text-align:center;font-size:11px;color:var(--muted)">
+  © 2026 <strong style="color:var(--green)">GuardDesk Pro</strong> — Cornelius Dlamini. All rights reserved. Unauthorised copying or distribution is strictly prohibited. 🇿🇦
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// GUARDESK PRO — CLIENT STORAGE
+// Clients saved in localStorage — stable and reliable
+// Owner accesses admin via: guardeskfullsystem.netlify.app?owner=true
+// ════════════════════════════════════════════════════════
+
+// ── OWNER CREDENTIALS ──
+const OWNER_CREDS = { username: 'cornelius', password: 'GuardDesk2026!' };
+
+let clients = [];
+let currentUser = null;
+let pendingIdx = null;
+let pendingActionType = null;
+
+// ── STORAGE ──
+function loadClients() {
+  try {
+    clients = JSON.parse(localStorage.getItem('gd_clients') || '[]');
+  } catch(e) {
+    clients = [];
+  }
+}
+
+function saveClients() {
+  try {
+    localStorage.setItem('gd_clients', JSON.stringify(clients));
+  } catch(e) {
+    showToast('⚠️ Could not save — storage full');
+  }
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+  const timeStr = now.toTimeString().slice(0,5);
+  ['i-date','h-date'].forEach(id => { const el=document.getElementById(id); if(el) el.value=today; });
+  ['h-time','ho-time','a-timein'].forEach(id => { const el=document.getElementById(id); if(el) el.value=timeStr; });
+  const nd = document.getElementById('new-due'); if(nd) nd.value=today;
+  const cpDate = document.getElementById('cp-date'); if(cpDate) cpDate.valueAsDate=now;
+
+  // ── DEMO CLIENT — always force-update to ensure correct credentials ──
+  let storedClients = [];
+  try {
+    storedClients = JSON.parse(localStorage.getItem('gd_clients') || '[]');
+  } catch(e) { storedClients = []; }
+
+  // Always remove old demo and re-add with correct password
+  storedClients = storedClients.filter(c => c.username !== 'demo');
+  storedClients.unshift({
+    id: 1,
+    name: 'Demo Client',
+    company: 'Test Security Company',
+    username: 'demo',
+    password: 'Demo2026',
+    plan: '499',
+    status: 'active',
+    due: '2026-08-01',
+    wa: '0821234567'
+  });
+  localStorage.setItem('gd_clients', JSON.stringify(storedClients));
+
+  // Load clients from storage
+  loadClients();
+
+  // Check if owner secret URL param is present
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('owner') === 'true') {
+    document.getElementById('owner-login-form').style.display = 'block';
+    document.getElementById('client-login-form').style.display = 'none';
+  }
+
+  // Restore session
+  const savedSession = sessionStorage.getItem('gd_session');
+  if(savedSession) {
+    try {
+      const s = JSON.parse(savedSession);
+      if(s.role === 'owner') { enterAdmin(); return; }
+      if(s.role === 'client') {
+        const c = clients.find(cl => cl.username === s.username);
+        if(c && (c.status === 'active' || c.status === 'trial')) { enterClient(c); return; }
+      }
+    } catch(e) { sessionStorage.removeItem('gd_session'); }
+  }
+  showScreen('login');
+});
+
+// ════════════════════════════
+// AUTH
+// ════════════════════════════
+function switchLoginTab(tab, el) {
+  // kept for compatibility but tabs are now hidden
+  document.getElementById('owner-login-form').style.display = tab==='owner' ? 'block' : 'none';
+  document.getElementById('client-login-form').style.display = tab==='client' ? 'block' : 'none';
+  document.getElementById('login-error').classList.remove('show');
+}
+
+function loginOwner() {
+  const u = document.getElementById('owner-user').value.trim();
+  const p = document.getElementById('owner-pass').value.trim();
+  if(!u || !p) { showLoginError('Please enter your username and password.'); return; }
+  if(u === OWNER_CREDS.username && p === OWNER_CREDS.password) {
+    sessionStorage.setItem('gd_session', JSON.stringify({role:'owner'}));
+    enterAdmin();
+  } else {
+    showLoginError('Wrong username or password. Try again.');
+  }
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function loginClient() {
+  const u = document.getElementById('client-user').value.trim();
+  const p = document.getElementById('client-pass').value.trim();
+  if(!u || !p) { showLoginError('Please enter your username and password.'); return; }
+  loadClients(); // always reload fresh
+  const client = clients.find(c => c.username === u && c.password === p);
+  if(!client) { showLoginError('Wrong username or password. Please try again.'); return; }
+  if(client.status === 'suspended') {
+    showLoginError('Your account has been suspended. Please contact GuardDesk Pro on 083 940 8678.');
+    return;
+  }
+  sessionStorage.setItem('gd_session', JSON.stringify({role:'client', username:u}));
+  enterClient(client);
+}
+
+function logout() {
+  sessionStorage.removeItem('gd_session');
+  currentUser = null;
+  document.body.classList.remove('theme-blue','theme-amber','theme-purple','theme-red');
+  showScreen('login');
+  const el = document.getElementById('login-error');
+  if(el) el.classList.remove('show');
+  ['owner-user','owner-pass','client-user','client-pass'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value='';
+  });
+}
+
+function resetDemoData() {
+  // Clear ALL stored data and reload fresh — no confirm dialog needed
+  try {
+    localStorage.removeItem('gd_clients');
+    localStorage.removeItem('gd_clients_backup');
+    sessionStorage.removeItem('gd_session');
+  } catch(e) {}
+  showToast('✅ Reset done! Reloading...');
+  setTimeout(() => location.reload(), 1000);
+}
+
+
+// ════════════════════════════
+// SCREEN MANAGEMENT
+// ════════════════════════════
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+}
+
+// ════════════════════════════
+// OWNER PANEL FUNCTIONS
+// ════════════════════════════
+function switchOwnerTab(panel, el) {
+  document.querySelectorAll('#screen-admin .ws-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#screen-admin .wnav-tab').forEach(t => t.classList.remove('active'));
+  const target = document.getElementById('owner-' + panel) ||
+                 document.getElementById('owner-' + panel + '-panel');
+  if(target) target.classList.add('active');
+  if(el) el.classList.add('active');
+  // Refresh data for each tab
+  if(panel === 'revenue') renderRevenue();
+  if(panel === 'roster') renderActivityRoster();
+  if(panel === 'overview') renderPaymentReminders();
+}
+
+function enterAdmin() {
+  showScreen('admin');
+  loadClients();
+  renderClientTable();
+  updateAdminStats();
+  renderActivityRoster();
+  renderPaymentReminders();
+  renderRevenue();
+  const dateEl = document.getElementById('owner-date');
+  if(dateEl) dateEl.textContent = new Date().toLocaleDateString('en-ZA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  // Load owner settings
+  const os = JSON.parse(localStorage.getItem('gd_owner_settings') || '{}');
+  if(os.lang) { currentLang = os.lang; applyTranslations(os.lang); document.querySelectorAll('.owner-lang').forEach(el => el.classList.toggle('active', el.dataset.lang === os.lang)); }
+  if(os.theme) { document.body.classList.remove('theme-blue','theme-amber','theme-purple','theme-red'); if(os.theme!=='green') document.body.classList.add('theme-'+os.theme); }
+}
+
+function saveOwnerSettings() {
+  const s = {
+    name: document.getElementById('owner-full-name')?.value.trim(),
+    biz: document.getElementById('owner-biz-name')?.value.trim(),
+    email: document.getElementById('owner-email')?.value.trim(),
+    phone: document.getElementById('owner-phone')?.value.trim(),
+    bank: document.getElementById('owner-bank')?.value.trim(),
+    acc: document.getElementById('owner-acc')?.value.trim(),
+  };
+  const existing = JSON.parse(localStorage.getItem('gd_owner_settings') || '{}');
+  localStorage.setItem('gd_owner_settings', JSON.stringify({...existing, ...s}));
+  showToast('✅ Business details saved!');
+}
+
+function selectOwnerLang(lang, el) {
+  document.querySelectorAll('.owner-lang').forEach(e => e.classList.remove('active'));
+  if(el) el.classList.add('active');
+  currentLang = lang;
+  applyTranslations(lang);
+  const s = JSON.parse(localStorage.getItem('gd_owner_settings') || '{}');
+  s.lang = lang;
+  localStorage.setItem('gd_owner_settings', JSON.stringify(s));
+  showToast('🌍 Language updated!');
+}
+
+function selectOwnerTheme(theme, el) {
+  document.querySelectorAll('.owner-theme-opt').forEach(e => { e.classList.remove('active-theme'); e.style.borderColor = 'var(--border)'; });
+  if(el) { el.classList.add('active-theme'); el.style.borderColor = 'var(--green)'; }
+  document.body.classList.remove('theme-blue','theme-amber','theme-purple','theme-red');
+  if(theme !== 'green') document.body.classList.add('theme-'+theme);
+  const s = JSON.parse(localStorage.getItem('gd_owner_settings') || '{}');
+  s.theme = theme;
+  localStorage.setItem('gd_owner_settings', JSON.stringify(s));
+  showToast('🎨 Theme updated!');
+}
+
+function renderPaymentReminders() {
+  const container = document.getElementById('payment-reminders');
+  if(!container) return;
+  const today = new Date();
+  const due = clients.filter(c => {
+    if(!c.due || c.status !== 'active') return false;
+    const d = new Date(c.due);
+    const diff = Math.round((d - today)/(1000*60*60*24));
+    return diff >= 0 && diff <= 5;
+  });
+  if(due.length === 0) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px">No payments due in the next 5 days ✅</div>';
+    return;
+  }
+  container.innerHTML = due.map(c => {
+    const diff = Math.round((new Date(c.due) - today)/(1000*60*60*24));
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <div><strong>${c.name}</strong> <span style="color:var(--muted);font-size:11px">· R${c.plan}/mo</span></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="color:var(--amber);font-weight:700;font-size:12px">${diff === 0 ? 'Due TODAY' : `Due in ${diff} day${diff===1?'':'s'}`}</span>
+        <button onclick="copyRenewalMessage('${c.name}','${c.wa}','${c.plan}')" style="background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.3);border-radius:6px;color:#25D366;font-family:var(--sans);font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer">💬 Remind</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function copyRenewalMessage(name, wa, plan) {
+  const msg = `Hi ${name} 👋\n\nJust a reminder that your GuardDesk Pro subscription of R${plan}/month is due soon.\n\nPlease send payment to:\n📱 083 940 8678\n\nOnce payment is received, your access continues without interruption. Thank you! 🛡️`;
+  const link = wa ? `https://wa.me/27${wa.replace(/^0/,'')}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(link, '_blank');
+}
+
+function renderRevenue() {
+  const active = clients.filter(c => c.status === 'active');
+  const trial = clients.filter(c => c.status === 'trial');
+  const suspended = clients.filter(c => c.status === 'suspended');
+  const mrr = active.reduce((s,c) => s+parseInt(c.plan||0), 0);
+  const pipeline = trial.reduce((s,c) => s+parseInt(c.plan||0), 0);
+  const lost = suspended.reduce((s,c) => s+parseInt(c.plan||0), 0);
+
+  const el = id => document.getElementById(id);
+  if(el('rev-mrr')) el('rev-mrr').textContent = 'R'+mrr.toLocaleString();
+  if(el('rev-annual')) el('rev-annual').textContent = 'R'+(mrr*12).toLocaleString();
+  if(el('rev-pipeline')) el('rev-pipeline').textContent = 'R'+pipeline.toLocaleString();
+  if(el('rev-lost')) el('rev-lost').textContent = 'R'+lost.toLocaleString();
+
+  const breakdown = document.getElementById('revenue-breakdown');
+  if(!breakdown) return;
+  if(active.length === 0) {
+    breakdown.innerHTML = '<div style="color:var(--muted);text-align:center;font-size:13px;padding:16px">Add clients to see revenue breakdown</div>';
+    return;
+  }
+  const plans = {'299':'Starter','499':'Professional','999':'Enterprise','2500':'White Label'};
+  const grouped = {};
+  active.forEach(c => { grouped[c.plan] = (grouped[c.plan]||0) + 1; });
+  breakdown.innerHTML = Object.entries(grouped).map(([plan, count]) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:13px;font-weight:700">${plans[plan]||'Plan'} — R${plan}/mo</div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="font-size:12px;color:var(--muted)">${count} client${count===1?'':'s'}</span>
+        <span style="font-size:14px;font-weight:900;color:var(--green)">R${(parseInt(plan)*count).toLocaleString()}/mo</span>
+      </div>
+    </div>
+  `).join('') + `<div style="display:flex;justify-content:space-between;padding:12px 0;font-size:14px;font-weight:900"><span style="color:var(--muted)">TOTAL MRR</span><span style="color:var(--amber)">R${mrr.toLocaleString()}/mo</span></div>`;
+}
+
+// OWNER PASSWORD CHANGE
+function changeOwnerPassword() {
+  const curr = document.getElementById('owner-curr-pass')?.value.trim();
+  const newP = document.getElementById('owner-new-pass')?.value.trim();
+  if(!curr || !newP) { showToast('⚠️ Fill in both fields'); return; }
+  if(curr !== OWNER_CREDS.password) { showToast('⚠️ Current password is wrong'); return; }
+  if(newP.length < 6) { showToast('⚠️ New password must be at least 6 characters'); return; }
+  OWNER_CREDS.password = newP;
+  showToast('✅ Owner password updated!');
+  ['owner-curr-pass','owner-new-pass'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+}
+
+function renderActivityRoster() {
+  const grid = document.getElementById('roster-grid');
+  const dateEl = document.getElementById('roster-date');
+  const today = new Date().toISOString().split('T')[0];
+  dateEl.textContent = new Date().toLocaleDateString('en-ZA', {weekday:'long', day:'numeric', month:'long'});
+
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem('gd_activity_log') || '[]'); } catch(e) {}
+  const todayLog = log.filter(l => l.date === today);
+
+  if(todayLog.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:20px;font-size:13px">No officer activity recorded yet today</div>';
+    return;
+  }
+
+  // Group by username
+  const byUser = {};
+  todayLog.forEach(l => {
+    if(!byUser[l.username]) byUser[l.username] = { name: l.name, username: l.username, count: 0, lastTime: l.time, types: {} };
+    byUser[l.username].count++;
+    byUser[l.username].lastTime = l.time;
+    byUser[l.username].types[l.type] = (byUser[l.username].types[l.type] || 0) + 1;
+  });
+
+  grid.innerHTML = Object.values(byUser).map(u => {
+    const photo = localStorage.getItem('gd_photo_' + u.username);
+    const avatarStyle = photo
+      ? `background-image:url(${photo});background-size:cover;background-position:center`
+      : '';
+    const initial = u.name.charAt(0).toUpperCase();
+    return `
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--bg);margin:0 auto 10px;${avatarStyle}">${photo ? '' : initial}</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px">${u.name}</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px">@${u.username}</div>
+        <div style="background:rgba(0,200,150,0.1);border-radius:6px;padding:6px;margin-bottom:6px">
+          <div style="font-size:18px;font-weight:900;color:var(--green)">${u.count}</div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Reports Today</div>
+        </div>
+        <div style="font-size:10px;color:var(--muted)">🕐 Last active: ${u.lastTime}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function previewWorkspace() {
+  // Owner can preview the workspace as a demo client
+  const demoClient = {
+    name: 'Cornelius Dlamini',
+    company: 'GuardDesk Pro — Owner Preview',
+    plan: '499',
+    status: 'active',
+    due: null,
+    username: 'owner-preview'
+  };
+  currentUser = demoClient;
+  showScreen('client');
+  document.getElementById('client-badge').textContent = '👑 OWNER PREVIEW';
+  document.getElementById('cib-initial').textContent = 'C';
+  document.getElementById('cib-name').textContent = 'Owner Preview Mode — Cornelius Dlamini';
+  document.getElementById('cib-plan').textContent = 'Professional Plan — Viewing as client';
+  const dueEl = document.getElementById('cib-due');
+  dueEl.textContent = '👑 Owner Preview';
+  dueEl.className = 'due-chip due-ok';
+  // Show back to admin button
+  document.getElementById('back-to-admin-btn').style.display = 'flex';
+}
+
+function backToAdmin() {
+  showScreen('admin');
+  document.getElementById('back-to-admin-btn').style.display = 'none';
+  currentUser = null;
+}
+
+function enterClient(client) {
+  currentUser = client;
+  reportHistory = [];
+  dashStats = { total:0, incidents:0, patrols:0, emails:0 };
+  showScreen('client');
+  // Reset to dashboard tab
+  document.querySelectorAll('.wnav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.wnav-tab')[0].classList.add('active');
+  document.querySelectorAll('.ws-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('ws-dashboard').classList.add('active');
+  document.getElementById('client-badge').textContent = '👮 ' + client.name.split(' ')[0].toUpperCase();
+  document.getElementById('back-to-admin-btn').style.display = 'none';
+  document.getElementById('cib-initial').textContent = client.name.charAt(0).toUpperCase();
+  document.getElementById('cib-name').textContent = client.name + (client.company ? ' · ' + client.company : '');
+  const planNames = {'299':'Starter Plan — R299/mo','499':'Professional Plan — R499/mo','999':'Enterprise Plan — R999/mo'};
+  document.getElementById('cib-plan').textContent = planNames[client.plan] || 'Active Plan';
+  const due = client.due ? new Date(client.due) : null;
+  const today = new Date();
+  const diff = due ? Math.round((due - today)/(1000*60*60*24)) : null;
+  const dueEl = document.getElementById('cib-due');
+  if(diff !== null) {
+    if(diff < 0) { dueEl.textContent = 'Payment overdue'; dueEl.className='due-chip due-warn'; }
+    else if(diff <= 5) { dueEl.textContent = `Due in ${diff} day${diff===1?'':'s'}`; dueEl.className='due-chip due-warn'; }
+    else { dueEl.textContent = `Paid — due ${due.toLocaleDateString('en-ZA')}`; dueEl.className='due-chip due-ok'; }
+  } else {
+    dueEl.textContent = client.status === 'trial' ? '🔵 Trial Active' : '✅ Active';
+    dueEl.className = 'due-chip due-ok';
+  }
+  // Dashboard greeting
+  const nameEl = document.getElementById('dash-client-name');
+  if(nameEl) nameEl.textContent = client.name.split(' ')[0];
+  const dtEl = document.getElementById('dash-date-time');
+  if(dtEl) dtEl.textContent = new Date().toLocaleDateString('en-ZA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  updateDashboard();
+  loadSettings();
+  loadProfilePhoto();
+  loadTheme();
+  loadSoundPref();
+  loadReferralData();
+  loadLanguage();
+}
+
+// ════════════════════════════
+// ADMIN — CLIENT MANAGEMENT
+// ════════════════════════════
+function generateCredentials() {
+  const name = document.getElementById('new-name').value.trim();
+  const base = name ? name.toLowerCase().split(' ')[0].replace(/[^a-z0-9]/g,'') : 'client';
+  const num = Math.floor(Math.random()*900)+100;
+  document.getElementById('new-username').value = base + num;
+  document.getElementById('new-password').value = 'Guard@' + (Math.floor(Math.random()*9000)+1000);
+  updateCredPreview();
+  showToast('🎲 Credentials generated!');
+}
+
+function updateCredPreview() {
+  const u = document.getElementById('new-username').value.trim();
+  const p = document.getElementById('new-password').value.trim();
+  const preview = document.getElementById('cred-preview');
+  if(u && p) {
+    document.getElementById('preview-user').textContent = u;
+    document.getElementById('preview-pass').textContent = p;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+function addClient() {
+  const name = document.getElementById('new-name').value.trim();
+  const company = document.getElementById('new-company').value.trim();
+  const username = document.getElementById('new-username').value.trim();
+  const password = document.getElementById('new-password').value.trim();
+  const plan = document.getElementById('new-plan').value;
+  const status = document.getElementById('new-status').value;
+  const due = document.getElementById('new-due').value;
+  const wa = document.getElementById('new-wa').value.trim();
+
+  if(!name || !username || !password) { showToast('⚠️ Fill in name, username and password'); return; }
+  if(clients.find(c => c.username === username)) { showToast('⚠️ Username already exists'); return; }
+
+  clients.push({ id: Date.now(), name, company, username, password, plan, status, due, wa });
+  saveClients();
+  renderClientTable();
+  updateAdminStats();
+  ['new-name','new-company','new-username','new-password','new-wa'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('cred-preview').style.display = 'none';
+  showToast('✅ Client added! Send them the workspace link with their login details.');
+}
+
+// ── CLIENT MANAGEMENT ──
+
+function renderClientTable() {
+  const tbody = document.getElementById('client-tbody');
+  document.getElementById('client-count').textContent = clients.length + ' client' + (clients.length!==1?'s':'');
+  if(clients.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No clients yet — add your first client above</td></tr>';
+    return;
+  }
+  const planNames = {'299':'Starter','499':'Professional','999':'Enterprise'};
+  const statusHTML = {
+    'active':'<span class="status-pill status-active">● ACTIVE</span>',
+    'trial':'<span class="status-pill status-trial">● TRIAL</span>',
+    'suspended':'<span class="status-pill status-suspended">● SUSPENDED</span>'
+  };
+  tbody.innerHTML = clients.map((c,i) => `
+    <tr>
+      <td>
+        <div style="font-weight:700;font-size:13px">${c.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${c.company||'—'} ${c.wa?'· 📱'+c.wa:''}</div>
+      </td>
+      <td>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--green)">${c.username}</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted2)">${c.password}</div>
+      </td>
+      <td><span class="plan-tag">${planNames[c.plan]||c.plan}</span><div style="font-size:11px;color:var(--green);margin-top:4px;font-weight:700">R${c.plan}/mo</div></td>
+      <td style="font-size:12px;color:var(--muted)">${c.due ? new Date(c.due).toLocaleDateString('en-ZA') : '—'}</td>
+      <td>${statusHTML[c.status]||c.status}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-act btn-activate" onclick="changeStatus(${i},'active')" ${c.status==='active'?'style="opacity:0.35;cursor:default"':''}>✅ Activate</button>
+          <button class="btn-act btn-suspend" onclick="${c.status!=='suspended'?`confirmSuspend(${i})`:'void(0)'}" ${c.status==='suspended'?'style="opacity:0.35;cursor:default"':''}>🚫 Suspend</button>
+          <button class="btn-act btn-copy-cred" onclick="copyCredentials(${i})">📋 Copy Login</button>
+          <button class="btn-act btn-delete" onclick="confirmDelete(${i})">🗑️ Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function changeStatus(idx, status) {
+  clients[idx].status = status;
+  saveClients();
+  renderClientTable();
+  updateAdminStats();
+  const labels = {active:'✅ Account activated!', suspended:'🚫 Account suspended!', trial:'🔵 Set to trial!'};
+  showToast(labels[status]);
+}
+
+function copyCredentials(idx) {
+  const c = clients[idx];
+  const text = `GuardDesk Pro Login Details\n\nName: ${c.name}\nUsername: ${c.username}\nPassword: ${c.password}\nPlan: R${c.plan}/month\n\nLogin link: https://guardeskfullsystem.netlify.app\n\nTap LOGIN TO MY WORKSPACE and enter your username and password above.`;
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Login details copied — send via WhatsApp!'));
+}
+
+function updateAdminStats() {
+  const active = clients.filter(c=>c.status==='active').length;
+  const trial = clients.filter(c=>c.status==='trial').length;
+  const suspended = clients.filter(c=>c.status==='suspended').length;
+  const mrr = clients.filter(c=>c.status==='active').reduce((s,c)=>s+parseInt(c.plan||0),0);
+  document.getElementById('stat-total').textContent = clients.length;
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-trial').textContent = trial;
+  document.getElementById('stat-suspended').textContent = suspended;
+  document.getElementById('stat-mrr').textContent = 'R'+mrr.toLocaleString();
+}
+
+// ── CONFIRM MODALS ──
+function confirmSuspend(idx) {
+  pendingIdx = idx; pendingActionType = 'suspend';
+  document.getElementById('modal-title').textContent = '🚫 Suspend Account';
+  document.getElementById('modal-body').textContent = `Suspend ${clients[idx].name}'s access? They will not be able to login until you reactivate their account.`;
+  document.getElementById('modal-confirm-btn').textContent = 'Suspend Account';
+  document.getElementById('modal-confirm-btn').style.background = 'var(--red)';
+  document.getElementById('confirm-modal').classList.add('show');
+}
+
+function confirmDelete(idx) {
+  pendingIdx = idx; pendingActionType = 'delete';
+  document.getElementById('modal-title').textContent = '🗑️ Delete Client';
+  document.getElementById('modal-body').textContent = `Permanently delete ${clients[idx].name}? This cannot be undone.`;
+  document.getElementById('modal-confirm-btn').textContent = 'Delete Permanently';
+  document.getElementById('modal-confirm-btn').style.background = 'var(--red)';
+  document.getElementById('confirm-modal').classList.add('show');
+}
+
+function confirmAction() {
+  if(pendingActionType === 'suspend') changeStatus(pendingIdx, 'suspended');
+  else if(pendingActionType === 'delete') {
+    clients.splice(pendingIdx, 1);
+    saveClients();
+    renderClientTable();
+    updateAdminStats();
+    showToast('🗑️ Client deleted');
+  }
+  closeModal();
+}
+
+function closeModal() {
+  document.getElementById('confirm-modal').classList.remove('show');
+  pendingIdx = null; pendingActionType = null;
+}
+
+// ════════════════════════════
+// WORKSPACE — REPORT GENERATION
+// ════════════════════════════
+function switchWsTab(panel, el) {
+  document.querySelectorAll('.wnav-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.ws-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('ws-'+panel).classList.add('active');
+}
+
+function getActivePillsIn(container) {
+  return Array.from(container.querySelectorAll('.ws-pill.active')).map(p=>p.textContent).join(', ') || 'Not specified';
+}
+
+function genRef(prefix) {
+  const n=new Date();
+  return `${prefix}-${n.getFullYear().toString().slice(2)}${String(n.getMonth()+1).padStart(2,'0')}${String(n.getDate()).padStart(2,'0')}-${Math.floor(Math.random()*9000)+1000}`;
+}
+
+function buildPrompt(type) {
+  const ref = genRef(type==='incident'?'IR':type==='hourly'?'HR':type==='handover'?'HO':'AC');
+  const clientName = currentUser ? currentUser.name : 'Security Officer';
+  const clientCompany = currentUser ? (currentUser.company||'') : '';
+
+  if(type==='incident') {
+    const incTypes = getActivePillsIn(document.querySelector('#ws-incident .ws-pills'));
+    return {ref, prompt:`You are a professional South African security report writer. Write a complete formal INCIDENT REPORT.
+
+REPORT REF: ${ref}
+COMPANY: ${clientCompany}
+OFFICER: ${document.getElementById('i-officer').value||'N/A'} | PSIRA: ${document.getElementById('i-badge').value||'N/A'}
+SITE: ${document.getElementById('i-site').value||'N/A'}
+DATE: ${document.getElementById('i-date').value} | TIME: ${document.getElementById('i-time').value} | SHIFT: ${document.getElementById('i-shift').value}
+INCIDENT TYPE: ${incTypes}
+WHAT HAPPENED: ${document.getElementById('i-desc').value||'Not provided'}
+SUSPECT: ${document.getElementById('i-suspect').value||'None recorded'}
+ACTION TAKEN: ${document.getElementById('i-action').value||'Not specified'}
+SAPS CASE: ${document.getElementById('i-saps').value||'N/A'}
+OUTCOME: ${document.getElementById('i-outcome').value||'Pending'}
+
+Write a complete professional incident report with sections (UPPERCASE headings): INCIDENT REPORT HEADER | NATURE OF INCIDENT | CHRONOLOGICAL ACCOUNT OF EVENTS | PERSONS INVOLVED | ACTION TAKEN | SAPS INVOLVEMENT | OUTCOME & RESOLUTION | OFFICER DECLARATION. Plain text only. Formal SA security English. Expand all notes into full professional sentences.`};
+  }
+
+  if(type==='hourly') {
+    const areas = getActivePillsIn(document.querySelector('#ws-hourly .ws-pills'));
+    return {ref, prompt:`Write a professional HOURLY PATROL REPORT for a South African security site.
+
+REPORT REF: ${ref}
+COMPANY: ${clientCompany}
+OFFICER: ${document.getElementById('h-officer').value||'N/A'}
+SITE: ${document.getElementById('h-site').value||'N/A'}
+DATE: ${document.getElementById('h-date').value} | TIME: ${document.getElementById('h-time').value}
+STATUS: ${document.getElementById('h-status').value}
+AREAS PATROLLED: ${areas}
+OBSERVATIONS: ${document.getElementById('h-notes').value||'Nothing further to report'}
+
+Sections (UPPERCASE): PATROL REPORT HEADER | PATROL SUMMARY | AREAS INSPECTED | OBSERVATIONS | ACTIONS TAKEN | OFFICER CERTIFICATION. Plain text. Professional SA security English.`};
+  }
+
+  if(type==='handover') {
+    return {ref, prompt:`Write a professional SHIFT HANDOVER REPORT for a South African security site.
+
+REPORT REF: ${ref}
+COMPANY: ${clientCompany}
+OUTGOING OFFICER: ${document.getElementById('ho-out').value||'N/A'}
+INCOMING OFFICER: ${document.getElementById('ho-in').value||'N/A'}
+SITE: ${document.getElementById('ho-site').value||'N/A'}
+HANDOVER TIME: ${document.getElementById('ho-time').value}
+INCIDENTS: ${document.getElementById('ho-incidents').value||'None'}
+OUTSTANDING ISSUES: ${document.getElementById('ho-outstanding').value||'None'}
+EQUIPMENT: ${document.getElementById('ho-equipment').value||'Not specified'}
+
+Sections (UPPERCASE): HANDOVER HEADER | SHIFT SUMMARY | INCIDENT LOG | OUTSTANDING MATTERS | EQUIPMENT HANDOVER | OUTGOING SIGN-OFF | INCOMING ACKNOWLEDGEMENT. Plain text. Formal SA English.`};
+  }
+
+  if(type==='access') {
+    return {ref, prompt:`Write a formal ACCESS CONTROL LOG ENTRY for a South African security site.
+
+RECORD REF: ${ref}
+COMPANY: ${clientCompany}
+OFFICER: ${document.getElementById('a-officer').value||'N/A'}
+SITE: ${document.getElementById('a-site').value||'N/A'}
+VISITOR: ${document.getElementById('a-name').value||'N/A'}
+ID: ${document.getElementById('a-id').value||'N/A'}
+VEHICLE: ${document.getElementById('a-vehicle').value||'N/A'}
+PURPOSE: ${document.getElementById('a-purpose').value||'N/A'}
+TIME IN: ${document.getElementById('a-timein').value} | TIME OUT: ${document.getElementById('a-timeout').value||'N/A'}
+ACCESS: ${document.getElementById('a-granted').value}
+
+Sections (UPPERCASE): ACCESS RECORD HEADER | VISITOR DETAILS | PURPOSE | IDENTITY VERIFICATION | ACCESS DECISION | TIME LOG | OFFICER CERTIFICATION. Plain text. Professional SA English.`};
+  }
+
+  if(type==='email') {
+    return {ref, prompt:`Write a professional security notification email from a South African security officer/supervisor.
+
+FROM: ${document.getElementById('e-from').value||clientName}
+COMPANY: ${clientCompany}
+SITE: ${document.getElementById('e-site').value||'N/A'}
+TO: ${document.getElementById('e-to').value}
+TYPE: ${document.getElementById('e-type').value}
+KEY POINTS: ${document.getElementById('e-points').value||'Not provided'}
+
+Write a complete professional email: SUBJECT LINE (clearly labelled), formal greeting, professional body expanding all key points, summary, actions required, formal sign-off. Plain text only. Professional SA security English.`};
+  }
+}
+
+async function generateWsReport(type) {
+  const {ref, prompt} = buildPrompt(type);
+  const btn = document.getElementById('btn-'+type);
+  const loader = document.getElementById('load-'+type);
+  const outBox = document.getElementById('out-'+type);
+  const outText = document.getElementById('text-'+type);
+
+  btn.disabled = true;
+  loader.classList.add('show');
+  outBox.classList.remove('show');
+
+  // Auto-fill site/company from settings
+  const s = getSettings();
+  if(s.siteName) {
+    ['i-site','h-site','ho-site','a-site','e-site'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el && !el.value) el.value = s.siteName;
+    });
+  }
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await res.json();
+    const text = data.content.map(i=>i.text||'').join('\n');
+    outText.textContent = text;
+    outBox.classList.add('show');
+    outBox.scrollIntoView({behavior:'smooth',block:'start'});
+    addToHistory(type, ref);
+    playSuccessSound();
+    showToast('✅ Report generated!');
+  } catch(err) {
+    showToast('⚠️ Error — please try again');
+  } finally {
+    btn.disabled = false;
+    loader.classList.remove('show');
+  }
+}
+
+function copyOut(outId) {
+  const text = document.getElementById(outId).querySelector('.ws-out-body').textContent;
+  navigator.clipboard.writeText(text).then(()=>showToast('📋 Copied!'));
+}
+
+function printOut(outId) {
+  const text = document.getElementById(outId).querySelector('.ws-out-body').textContent;
+  const win = window.open('','_blank');
+  win.document.write(`<html><head><title>GuardDesk Report</title><style>body{font-family:'Courier New',monospace;font-size:13px;line-height:1.8;padding:40px;color:#000}pre{white-space:pre-wrap;word-break:break-word}</style></head><body><pre>${text}</pre><script>window.onload=function(){window.print()}<\/script></body></html>`);
+  win.document.close();
+}
+
+function openMailto() {
+  const text = document.getElementById('text-email').textContent;
+  const lines = text.split('\n');
+  const subject = lines.find(l=>l.toLowerCase().startsWith('subject:'))?.replace(/^subject:\s*/i,'') || 'Security Report — GuardDesk Pro';
+  const s = getSettings();
+  const to = s.mgrEmail || '';
+  const cc = s.clientEmail || '';
+  let mailto = `mailto:${to}`;
+  if(cc) mailto += `?cc=${cc}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+  else mailto += `?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+  window.open(mailto);
+  addToHistory('email', genRef('EM'));
+  showToast('📧 Email opened — ready to send!');
+}
+
+// ════════════════════════════
+// CLOCKING POINTS MODULE
+// ════════════════════════════
+let patrolPoints = [];
+let clockingLog = [];
+let activeClocks = {}; // pointName -> clockInTime
+
+// Live clock
+setInterval(() => {
+  const el = document.getElementById('clock-live');
+  if(el) el.textContent = new Date().toLocaleTimeString('en-ZA');
+}, 1000);
+
+function addPatrolPoint() {
+  const input = document.getElementById('cp-point-name');
+  const name = input.value.trim();
+  if(!name) return;
+  if(patrolPoints.find(p => p.name === name)) { showToast('⚠️ Checkpoint already exists'); return; }
+  patrolPoints.push({ name, added: new Date().toLocaleTimeString('en-ZA') });
+  input.value = '';
+  renderPatrolPoints();
+  renderClockingButtons();
+  showToast('📍 Checkpoint added!');
+}
+
+function removePatrolPoint(idx) {
+  patrolPoints.splice(idx, 1);
+  renderPatrolPoints();
+  renderClockingButtons();
+}
+
+function renderPatrolPoints() {
+  const container = document.getElementById('patrol-points-list');
+  if(patrolPoints.length === 0) {
+    container.innerHTML = '<div style="font-size:12px;color:var(--muted2);text-align:center;padding:12px">No patrol points added yet — add your first checkpoint above</div>';
+    return;
+  }
+  container.innerHTML = patrolPoints.map((p,i) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:16px">📍</span>
+        <div>
+          <div style="font-size:13px;font-weight:600">${p.name}</div>
+          <div style="font-size:11px;color:var(--muted)">Added at ${p.added}</div>
+        </div>
+      </div>
+      <button onclick="removePatrolPoint(${i})" style="background:rgba(229,56,59,0.1);border:1px solid rgba(229,56,59,0.3);border-radius:6px;color:var(--red);font-family:var(--sans);font-size:11px;font-weight:600;padding:4px 10px;cursor:pointer">Remove</button>
+    </div>
+  `).join('');
+}
+
+function renderClockingButtons() {
+  const container = document.getElementById('clocking-buttons');
+  if(patrolPoints.length === 0) {
+    container.innerHTML = '<div style="font-size:12px;color:var(--muted2);text-align:center;padding:16px">Add patrol points above to start clocking</div>';
+    return;
+  }
+  container.innerHTML = patrolPoints.map((p) => {
+    const isIn = activeClocks[p.name];
+    const logEntry = clockingLog.slice().reverse().find(l => l.point === p.name && !l.clockOut);
+    return `
+    <div style="background:var(--bg);border:1px solid ${isIn ? 'var(--green)' : 'var(--border)'};border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;transition:border-color 0.3s">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">${isIn ? '🟢' : '⚪'}</span>
+        <div>
+          <div style="font-size:14px;font-weight:700">${p.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${isIn ? '⏱️ Clocked in at ' + activeClocks[p.name] : 'Not yet visited'}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        ${!isIn ? `<button onclick="clockIn('${p.name}')" style="background:var(--green);color:var(--bg);border:none;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:700;padding:9px 18px;cursor:pointer">▶ Clock IN</button>` : ''}
+        ${isIn ? `<button onclick="clockOut('${p.name}')" style="background:var(--red);color:white;border:none;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:700;padding:9px 18px;cursor:pointer">⏹ Clock OUT</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clockIn(pointName) {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-ZA', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  activeClocks[pointName] = timeStr;
+  clockingLog.push({ point: pointName, clockIn: timeStr, clockInMs: now.getTime(), clockOut: null, clockOutMs: null, duration: null });
+  renderClockingButtons();
+  renderClockLog();
+  showToast('▶ Clocked IN at ' + pointName);
+}
+
+function clockOut(pointName) {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-ZA', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  const entry = clockingLog.slice().reverse().find(l => l.point === pointName && !l.clockOut);
+  if(entry) {
+    entry.clockOut = timeStr;
+    entry.clockOutMs = now.getTime();
+    const diffMs = now.getTime() - entry.clockInMs;
+    const mins = Math.floor(diffMs / 60000);
+    const secs = Math.floor((diffMs % 60000) / 1000);
+    entry.duration = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+  }
+  delete activeClocks[pointName];
+  renderClockingButtons();
+  renderClockLog();
+  showToast('⏹ Clocked OUT from ' + pointName);
+}
+
+function renderClockLog() {
+  const tbody = document.getElementById('clock-log-body');
+  if(clockingLog.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;font-size:13px">No clocking records yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = clockingLog.slice().reverse().map(l => `
+    <tr>
+      <td style="padding:11px 16px;border-bottom:1px solid var(--border);font-weight:600">${l.point}</td>
+      <td style="padding:11px 16px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--green)">${l.clockIn}</td>
+      <td style="padding:11px 16px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;color:${l.clockOut ? 'var(--amber)' : 'var(--muted)'}">${l.clockOut || '—'}</td>
+      <td style="padding:11px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--white)">${l.duration || (l.clockOut ? '—' : '<span style="color:var(--green)">In progress...</span>')}</td>
+      <td style="padding:11px 16px;border-bottom:1px solid var(--border)">
+        ${l.clockOut
+          ? '<span style="background:rgba(0,200,150,0.15);color:var(--green);font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;font-family:monospace">✓ COMPLETE</span>'
+          : '<span style="background:rgba(245,166,35,0.15);color:var(--amber);font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;font-family:monospace">⏱ ACTIVE</span>'}
+      </td>
+    </tr>
+  `).join('');
+
+  // Update summary stats
+  const completed = clockingLog.filter(l => l.clockOut);
+  const totalMins = completed.reduce((sum, l) => sum + Math.floor((l.clockOutMs - l.clockInMs)/60000), 0);
+  const uniqueVisited = new Set(completed.map(l => l.point)).size;
+  const missed = patrolPoints.filter(p => !clockingLog.find(l => l.point === p.name)).length;
+  document.getElementById('points-visited').textContent = uniqueVisited;
+  document.getElementById('points-missed').textContent = missed;
+  document.getElementById('total-patrol-time').textContent = totalMins + ' min';
+}
+
+function clearClockingLog() {
+  if(!confirm('Clear all clocking records for this shift?')) return;
+  clockingLog = [];
+  activeClocks = {};
+  renderClockingButtons();
+  renderClockLog();
+  showToast('🗑️ Clocking log cleared');
+}
+
+async function generateClockingReport() {
+  const site = document.getElementById('cp-site').value || 'Not specified';
+  const officer = document.getElementById('cp-officer').value || 'Not specified';
+  const date = document.getElementById('cp-date').value || new Date().toLocaleDateString('en-ZA');
+  const shift = document.getElementById('cp-shift').value;
+
+  if(clockingLog.length === 0) { showToast('⚠️ No clocking records yet — start your patrol first'); return; }
+
+  const completed = clockingLog.filter(l => l.clockOut);
+  const totalMins = completed.reduce((sum, l) => sum + Math.floor((l.clockOutMs - l.clockInMs)/60000), 0);
+  const missed = patrolPoints.filter(p => !clockingLog.find(l => l.point === p.name));
+  const ref = genRef('CP');
+
+  const logText = clockingLog.map(l =>
+    `  • ${l.point}: IN ${l.clockIn} | OUT ${l.clockOut || 'Still active'} | Duration: ${l.duration || 'In progress'}`
+  ).join('\n');
+
+  const missedText = missed.length > 0 ? missed.map(p => `  • ${p.name}`).join('\n') : '  None — all points visited';
+
+  const prompt = `You are a professional South African security report writer. Write a complete formal PATROL CLOCKING REPORT.
+
+REPORT REF: ${ref}
+OFFICER: ${officer}
+SITE: ${site}
+DATE: ${date}
+SHIFT: ${shift}
+TOTAL PATROL POINTS: ${patrolPoints.length}
+POINTS VISITED: ${new Set(completed.map(l=>l.point)).size}
+POINTS MISSED: ${missed.length}
+TOTAL PATROL TIME: ${totalMins} minutes
+
+DETAILED CLOCKING LOG:
+${logText}
+
+MISSED CHECKPOINTS:
+${missedText}
+
+Write a complete professional patrol clocking report with sections (UPPERCASE headings):
+PATROL CLOCKING REPORT HEADER | PATROL SUMMARY | DETAILED CHECKPOINT LOG | MISSED CHECKPOINTS | PATROL COMPLIANCE ASSESSMENT | SUPERVISOR NOTES | OFFICER DECLARATION
+
+Plain text only. Formal South African security English. Professional tone. Expand into full sentences.`;
+
+  const btn = document.getElementById('btn-clocking');
+  const loader = document.getElementById('load-clocking');
+  const outBox = document.getElementById('out-clocking');
+  btn.disabled = true;
+  loader.classList.add('show');
+  outBox.classList.remove('show');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await res.json();
+    const text = data.content.map(i=>i.text||'').join('\n');
+    document.getElementById('text-clocking').textContent = text;
+    outBox.classList.add('show');
+    outBox.scrollIntoView({behavior:'smooth',block:'start'});
+    showToast('✅ Clocking report generated!');
+  } catch(err) {
+    showToast('⚠️ Error — please try again');
+  } finally {
+    btn.disabled = false;
+    loader.classList.remove('show');
+  }
+}
+
+// ════════════════════════════
+// PASSWORD SHOW/HIDE
+// ════════════════════════════
+function togglePass(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if(input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+  }
+}
+
+// ════════════════════════════
+// FORGOT PASSWORD
+// ════════════════════════════
+function showForgotPassword() {
+  document.getElementById('client-login-form').style.display = 'none';
+  document.getElementById('forgot-panel').style.display = 'block';
+  document.getElementById('login-error').classList.remove('show');
+}
+
+function hideForgotPassword() {
+  document.getElementById('forgot-panel').style.display = 'none';
+  document.getElementById('client-login-form').style.display = 'block';
+}
+
+function requestPasswordReset() {
+  const username = document.getElementById('forgot-user').value.trim();
+  if(!username) { showLoginError('Please enter your username first.'); return; }
+  const client = clients.find(c => c.username === username);
+  const msg = client
+    ? `Hi Cornelius, I forgot my GuardDesk Pro password. My username is: ${username}. Please reset my password. Thank you.`
+    : `Hi Cornelius, I forgot my GuardDesk Pro password. My username is: ${username}. Please help me reset it. Thank you.`;
+  const waLink = `https://wa.me/27839408678?text=${encodeURIComponent(msg)}`;
+  window.open(waLink, '_blank');
+  const succ = document.getElementById('login-success');
+  succ.textContent = '✅ WhatsApp opened — send the message to Cornelius to reset your password.';
+  succ.style.display = 'block';
+  hideForgotPassword();
+}
+
+// ════════════════════════════
+// SETTINGS
+// ════════════════════════════
+function loadSettings() {
+  if(!currentUser) return;
+  const key = 'gd_settings_' + currentUser.username;
+  const s = JSON.parse(localStorage.getItem(key) || '{}');
+  if(s.mgrEmail) document.getElementById('set-mgr-email').value = s.mgrEmail;
+  if(s.mgrName) document.getElementById('set-mgr-name').value = s.mgrName;
+  if(s.clientEmail) document.getElementById('set-client-email').value = s.clientEmail;
+  if(s.clientName) document.getElementById('set-client-name').value = s.clientName;
+  if(s.siteName) document.getElementById('set-site-name').value = s.siteName;
+  if(s.companyName) document.getElementById('set-company-name').value = s.companyName;
+  updateDashboardRecipients(s);
+}
+
+function saveSettings() {
+  if(!currentUser) return;
+  const s = {
+    mgrEmail: document.getElementById('set-mgr-email').value.trim(),
+    mgrName: document.getElementById('set-mgr-name').value.trim(),
+    clientEmail: document.getElementById('set-client-email').value.trim(),
+    clientName: document.getElementById('set-client-name').value.trim(),
+    siteName: document.getElementById('set-site-name').value.trim(),
+    companyName: document.getElementById('set-company-name').value.trim(),
+  };
+  localStorage.setItem('gd_settings_' + currentUser.username, JSON.stringify(s));
+  updateDashboardRecipients(s);
+  showToast('✅ Settings saved!');
+}
+
+function getSettings() {
+  if(!currentUser) return {};
+  return JSON.parse(localStorage.getItem('gd_settings_' + currentUser.username) || '{}');
+}
+
+function updateDashboardRecipients(s) {
+  const mgrEl = document.getElementById('dash-mgr-email');
+  const cliEl = document.getElementById('dash-client-email');
+  if(mgrEl) mgrEl.textContent = s.mgrEmail ? `${s.mgrName || ''} — ${s.mgrEmail}` : 'Not set — go to Settings';
+  if(cliEl) cliEl.textContent = s.clientEmail ? `${s.clientName || ''} — ${s.clientEmail}` : 'Not set — go to Settings';
+}
+
+// ════════════════════════════
+// CHANGE PASSWORD
+// ════════════════════════════
+function changeClientPassword() {
+  const p1 = document.getElementById('new-pass-1').value.trim();
+  const p2 = document.getElementById('new-pass-2').value.trim();
+  if(!p1 || !p2) { showToast('⚠️ Enter and confirm your new password'); return; }
+  if(p1 !== p2) { showToast('⚠️ Passwords do not match'); return; }
+  if(p1.length < 6) { showToast('⚠️ Password must be at least 6 characters'); return; }
+  const idx = clients.findIndex(c => c.username === currentUser.username);
+  if(idx === -1) { showToast('⚠️ Account not found'); return; }
+  clients[idx].password = p1;
+  currentUser.password = p1;
+  saveClients();
+  document.getElementById('new-pass-1').value = '';
+  document.getElementById('new-pass-2').value = '';
+  showToast('✅ Password updated successfully!');
+}
+
+// ════════════════════════════
+// REPORT HISTORY
+// ════════════════════════════
+let reportHistory = [];
+let dashStats = { total:0, incidents:0, patrols:0, emails:0 };
+
+function addToHistory(type, ref) {
+  const typeNames = {incident:'Incident Report',hourly:'Hourly Patrol',handover:'Shift Handover',access:'Access Control',email:'Email Sent',clocking:'Clocking Report'};
+  const typeBadge = {incident:'var(--red)',hourly:'var(--amber)',handover:'var(--blue)',access:'var(--green)',email:'var(--blue)',clocking:'var(--green)'};
+  reportHistory.unshift({
+    ref, type,
+    name: typeNames[type] || type,
+    color: typeBadge[type] || 'var(--muted)',
+    time: new Date().toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'})
+  });
+  dashStats.total++;
+  if(type==='incident') dashStats.incidents++;
+  if(type==='hourly') dashStats.patrols++;
+  if(type==='email') dashStats.emails++;
+  updateDashboard();
+
+  // Save to global activity log for owner roster view
+  if(currentUser && currentUser.username) {
+    try {
+      const log = JSON.parse(localStorage.getItem('gd_activity_log') || '[]');
+      const today = new Date().toISOString().split('T')[0];
+      log.push({ username: currentUser.username, name: currentUser.name, type, date: today, time: new Date().toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}) });
+      // Keep only last 500 entries to avoid storage bloat
+      const trimmed = log.slice(-500);
+      localStorage.setItem('gd_activity_log', JSON.stringify(trimmed));
+    } catch(e) { /* storage full, ignore */ }
+  }
+}
+
+function updateDashboard() {
+  const el = id => document.getElementById(id);
+  if(el('dash-total')) el('dash-total').textContent = dashStats.total;
+  if(el('dash-incidents')) el('dash-incidents').textContent = dashStats.incidents;
+  if(el('dash-patrols')) el('dash-patrols').textContent = dashStats.patrols;
+  if(el('dash-emails')) el('dash-emails').textContent = dashStats.emails;
+
+  const tbody = el('report-history-body');
+  if(!tbody) return;
+  if(reportHistory.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:28px;font-size:13px">No reports yet — generate your first report</td></tr>';
+    return;
+  }
+  tbody.innerHTML = reportHistory.slice(0,10).map(r => `
+    <tr>
+      <td style="padding:11px 16px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--green)">${r.ref}</td>
+      <td style="padding:11px 16px;border-bottom:1px solid var(--border)"><span style="background:rgba(255,255,255,0.05);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;color:${r.color}">${r.name}</span></td>
+      <td style="padding:11px 16px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted)">${r.time}</td>
+      <td style="padding:11px 16px;border-bottom:1px solid var(--border)"><span style="color:var(--green);font-size:11px;font-weight:700">✅ Generated</span></td>
+    </tr>
+  `).join('');
+}
+
+function clearReportHistory() {
+  reportHistory = [];
+  dashStats = { total:0, incidents:0, patrols:0, emails:0 };
+  updateDashboard();
+  showToast('🗑️ Report history cleared');
+}
+
+// ════════════════════════════
+// PROFILE PHOTO
+// ════════════════════════════
+function handlePhotoUpload(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024) { showToast('⚠️ Photo too large — max 2MB'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    localStorage.setItem('gd_photo_' + currentUser.username, dataUrl);
+    applyProfilePhoto(dataUrl);
+    showToast('✅ Photo updated!');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeProfilePhoto() {
+  if(!currentUser) return;
+  localStorage.removeItem('gd_photo_' + currentUser.username);
+  applyProfilePhoto(null);
+  showToast('🗑️ Photo removed');
+}
+
+function applyProfilePhoto(dataUrl) {
+  const targets = ['profile-photo-preview', 'cib-initial'];
+  targets.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(dataUrl) {
+      el.style.backgroundImage = `url(${dataUrl})`;
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.textContent = '';
+    } else {
+      el.style.backgroundImage = '';
+      el.textContent = currentUser ? currentUser.name.charAt(0).toUpperCase() : '?';
+    }
+  });
+}
+
+function loadProfilePhoto() {
+  if(!currentUser) return;
+  const dataUrl = localStorage.getItem('gd_photo_' + currentUser.username);
+  applyProfilePhoto(dataUrl || null);
+}
+
+// ════════════════════════════
+// THEME SWITCHER
+// ════════════════════════════
+function selectTheme(theme) {
+  document.body.classList.remove('theme-blue','theme-amber','theme-purple','theme-red');
+  if(theme !== 'green') document.body.classList.add('theme-' + theme);
+  document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('active'));
+  const sel = document.querySelector(`.theme-option[data-theme="${theme}"]`);
+  if(sel) sel.classList.add('active');
+  if(currentUser) localStorage.setItem('gd_theme_' + currentUser.username, theme);
+  playClickSound();
+  showToast('🎨 Theme updated!');
+}
+
+function loadTheme() {
+  if(!currentUser) return;
+  const theme = localStorage.getItem('gd_theme_' + currentUser.username) || 'green';
+  document.body.classList.remove('theme-blue','theme-amber','theme-purple','theme-red');
+  if(theme !== 'green') document.body.classList.add('theme-' + theme);
+  document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('active'));
+  const sel = document.querySelector(`.theme-option[data-theme="${theme}"]`);
+  if(sel) sel.classList.add('active');
+}
+
+// ════════════════════════════
+// CLICK SOUNDS
+// ════════════════════════════
+let soundEnabled = false;
+let audioCtx = null;
+
+function initAudioContext() {
+  if(!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+}
+
+function playClickSound() {
+  if(!soundEnabled) return;
+  initAudioContext();
+  if(!audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = 880;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + 0.08);
+  } catch(e) {}
+}
+
+function playSuccessSound() {
+  if(!soundEnabled) return;
+  initAudioContext();
+  if(!audioCtx) return;
+  try {
+    [660, 880].forEach((freq, i) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      const startTime = audioCtx.currentTime + i * 0.08;
+      gain.gain.setValueAtTime(0.07, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.12);
+      osc.start(startTime);
+      osc.stop(startTime + 0.12);
+    });
+  } catch(e) {}
+}
+
+function toggleSound() {
+  soundEnabled = document.getElementById('sound-toggle').checked;
+  if(currentUser) localStorage.setItem('gd_sound_' + currentUser.username, soundEnabled ? '1' : '0');
+  if(soundEnabled) playClickSound();
+}
+
+function loadSoundPref() {
+  if(!currentUser) return;
+  soundEnabled = localStorage.getItem('gd_sound_' + currentUser.username) === '1';
+  const toggle = document.getElementById('sound-toggle');
+  if(toggle) toggle.checked = soundEnabled;
+}
+
+// Attach click sound to all buttons globally (event delegation)
+document.addEventListener('click', function(e) {
+  if(e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+    playClickSound();
+  }
+}, true);
+
+// ════════════════════════════
+// REFERRAL / AFFILIATE SYSTEM
+// ════════════════════════════
+function loadReferralData() {
+  if(!currentUser) return;
+  const refLink = `https://guardesksalespage.netlify.app?ref=${currentUser.username}`;
+  const el = document.getElementById('referral-link-display');
+  if(el) el.value = refLink;
+
+  let data = {};
+  try { data = JSON.parse(localStorage.getItem('gd_referral_' + currentUser.username) || '{}'); } catch(e) {}
+  const clicks = data.clicks || 0;
+  const signups = data.signups || 0;
+  const earned = data.earned || 0;
+
+  const cEl = document.getElementById('ref-clicks');
+  const sEl = document.getElementById('ref-signups');
+  const eEl = document.getElementById('ref-earned');
+  if(cEl) cEl.textContent = clicks;
+  if(sEl) sEl.textContent = signups;
+  if(eEl) eEl.textContent = 'R' + earned;
+}
+
+function copyReferralLink() {
+  const link = document.getElementById('referral-link-display').value;
+  navigator.clipboard.writeText(link).then(() => showToast('📋 Referral link copied!'));
+}
+
+function shareReferralWhatsApp() {
+  if(!currentUser) return;
+  const link = `https://guardesksalespage.netlify.app?ref=${currentUser.username}`;
+  const msg = `Hey! I've been using GuardDesk Pro for my security team and it's been a game changer — full professional incident reports in 60 seconds, automatic manager notifications, and live patrol clocking.\n\nIf you're in the security industry, you need to see this. Free 14-day trial here:\n${link}\n\n🛡️🇿🇦`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// ════════════════════════════
+// ACCORDION SETTINGS
+// ════════════════════════════
+function toggleAcc(head) {
+  const item = head.closest('.acc-item');
+  const isOpen = item.classList.contains('open');
+  // Close all others
+  document.querySelectorAll('.acc-item.open').forEach(el => el.classList.remove('open'));
+  // Open this one if it was closed
+  if(!isOpen) item.classList.add('open');
+  playClickSound();
+}
+
+// ════════════════════════════
+// SA LANGUAGE SYSTEM — All 11 Official Languages
+// ════════════════════════════
+const TRANSLATIONS = {
+  en: {
+    // Navigation
+    nav_dashboard:'📊 Dashboard', nav_incident:'🚨 Incident Report', nav_hourly:'🕐 Hourly Report',
+    nav_handover:'🔄 Shift Handover', nav_access:'🚗 Access Control', nav_email:'📧 Notify Manager',
+    nav_clocking:'📍 Clocking Points', nav_settings:'⚙️ Settings',
+    // Settings
+    settings_title:'⚙️ Settings', settings_sub:'Tap any section to open it',
+    lang_title:'Language', lang_sub:'Choose your preferred language',
+    photo_title:'Profile Photo', photo_sub:'Upload your officer photo',
+    photo_desc:'Upload a clear photo — appears on your dashboard and roster.',
+    photo_upload:'📷 Upload Photo', photo_remove:'Remove',
+    email_title:'Email Recipients', email_sub:'Set manager and client email addresses',
+    email_tip:'💡 Saved emails are auto-filled when you send notifications.',
+    mgr_email:'Manager Email', mgr_name:'Manager Name',
+    client_email:'Client Email', client_name:'Client Name',
+    site_name:'Site Name', company_name:'Security Company',
+    save_btn:'💾 Save Settings',
+    theme_title:'Workspace Theme', theme_sub:'Personalise your workspace colour',
+    sound_title:'Sound Effects', sound_sub:'Button click sounds',
+    sound_desc:'Enable satisfying click sounds throughout the workspace.',
+    pass_title:'Change Password', pass_sub:'Update your login password',
+    new_pass:'New Password', confirm_pass:'Confirm Password', update_pass_btn:'🔐 Update Password',
+    ref_title:'Refer & Earn', ref_sub:'Share and earn commission',
+    ref_link:'Your Referral Link', copy_btn:'📋 Copy', wa_share:'💬 Share on WhatsApp',
+    ref_clicks:'Clicks', ref_signups:'Signups', ref_earned:'Earned',
+    support_title:'Help & Support', support_sub:'Contact GuardDesk Pro',
+    support_desc:'Need help? Contact Cornelius directly on WhatsApp.',
+    support_btn:'💬 WhatsApp — 083 940 8678',
+    // Reports
+    generate_incident:'🛡️ Generate Incident Report in 60 Seconds',
+    generate_hourly:'🕐 Generate Hourly Patrol Report',
+    generate_handover:'🔄 Generate Handover Report',
+    generate_access:'🚗 Generate Access Log',
+    generate_email:'📧 Generate Professional Email',
+    generate_clocking:'📍 Generate Clocking Report',
+    // Login
+    login_sub:'South African Security Workspace',
+    login_instruction:'Enter the username and password sent to you by GuardDesk Pro',
+    login_username:'Username', login_password:'Password',
+    login_btn:'🛡️ Login to My Workspace',
+    forgot_pass:'🔑 Forgot your password?',
+  },
+  zu: {
+    nav_dashboard:'📊 Ideshibhodi', nav_incident:'🚨 Umbiko Wenzakalo', nav_hourly:'🕐 Umbiko Wehora',
+    nav_handover:'🔄 Ukuguqulwa Kweshifti', nav_access:'🚗 Ukulawula Ukungena', nav_email:'📧 Xwayisa Umlawuli',
+    nav_clocking:'📍 Amaphuzu Okuqopha', nav_settings:'⚙️ Izilungiselelo',
+    settings_title:'⚙️ Izilungiselelo', settings_sub:'Thepha inxenye ukuyivula',
+    lang_title:'Ulimi', lang_sub:'Khetha ulimi lwakho',
+    photo_title:'Isithombe Sephrofayela', photo_sub:'Layisha isithombe sakho',
+    photo_desc:'Layisha isithombe esicacile — sibonakala kudeshbhodi yakho.',
+    photo_upload:'📷 Layisha Isithombe', photo_remove:'Susa',
+    email_title:'Abamukeli Bamaeyili', email_sub:'Setha amakheli emaeyili',
+    email_tip:'💡 Amakheli agcinwe azaliswa ngokuzenzakalelayo.',
+    mgr_email:'Ikheli Lomlawuli', mgr_name:'Igama Lomlawuli',
+    client_email:'Ikheli Leklayenti', client_name:'Igama Leklayenti',
+    site_name:'Igama Lendawo', company_name:'Inkampani Yokuphepha',
+    save_btn:'💾 Gcina Izilungiselelo',
+    theme_title:'Isitayela Sendawo Yokusebenzela', theme_sub:'Khetha umbala wakho',
+    sound_title:'Imisindo', sound_sub:'Imisindo yokuchofoza',
+    sound_desc:'Vumela imisindo emihle yokuchofoza.',
+    pass_title:'Shintsha Iphasiwedi', pass_sub:'Buyekeza iphasiwedi yakho',
+    new_pass:'Iphasiwedi Entsha', confirm_pass:'Qinisekisa Iphasiwedi', update_pass_btn:'🔐 Buyekeza Iphasiwedi',
+    ref_title:'Ama-Refer Ntsha Uhola', ref_sub:'Abelana uze uthole ikhomishini',
+    ref_link:'Isixhumanisi Sakho', copy_btn:'📋 Kopisha', wa_share:'💬 Yabelana ku-WhatsApp',
+    ref_clicks:'Amachofoza', ref_signups:'Ukubhaliswa', ref_earned:'Okuzuziwe',
+    support_title:'Usizo', support_sub:'Xhumana ne-GuardDesk Pro',
+    support_desc:'Udinga usizo? Xhumana noCornelius ku-WhatsApp.',
+    support_btn:'💬 WhatsApp — 083 940 8678',
+    generate_incident:'🛡️ Khiqiza Umbiko Wenzakalo',
+    generate_hourly:'🕐 Khiqiza Umbiko Wehora',
+    generate_handover:'🔄 Khiqiza Umbiko Wokuguqulwa',
+    generate_access:'🚗 Khiqiza Irekhodi Lokungena',
+    generate_email:'📧 Khiqiza Ikheli Elinosizo',
+    generate_clocking:'📍 Khiqiza Umbiko Wokuqopha',
+    login_sub:'Indawo Yokusebenzela Yokuphepha Yase-Ningizimu Afrika',
+    login_instruction:'Faka igama lomsebenzisi nephasiwedi ekuthumelwe yona yi-GuardDesk Pro',
+    login_username:'Igama Lomsebenzisi', login_password:'Iphasiwedi',
+    login_btn:'🛡️ Ngena Endaweni Yokusebenzela',
+    forgot_pass:'🔑 Ukhohlwa iphasiwedi?',
+  },
+  xh: {
+    nav_dashboard:'📊 Ibhodi', nav_incident:'🚨 Ingxelo Yesiganeko', nav_hourly:'🕐 Ingxelo Yeeyure',
+    nav_handover:'🔄 Ukudluliswa Kweshifti', nav_access:'🚗 Ulawulo Lokungena', nav_email:'📧 Xela uMphathi',
+    nav_clocking:'📍 Iindawo Zokuqopha', nav_settings:'⚙️ Iisetingi',
+    settings_title:'⚙️ Iisetingi', settings_sub:'Cofa icandelo ukuyivula',
+    lang_title:'Ulwimi', lang_sub:'Khetha ulwimi lwakho',
+    photo_title:'Umfanekiso Weprofayile', photo_sub:'Layisha umfanekiso wakho',
+    photo_desc:'Layisha umfanekiso ocacileyo — ubonakala kwi-dashboard yakho.',
+    photo_upload:'📷 Layisha Umfanekiso', photo_remove:'Susa',
+    email_title:'Abafumani Beemail', email_sub:'Misela iidilesi ze-email',
+    email_tip:'💡 Iidilesi ezigciniweyo zizaliswa ngokuzenzekelayo.',
+    mgr_email:'I-Email yoMphathi', mgr_name:'Igama loMphathi',
+    client_email:'I-Email yoMxhasi', client_name:'Igama loMxhasi',
+    site_name:'Igama leSayiti', company_name:'Inkampani Yokhuseleko',
+    save_btn:'💾 Gcina Iisetingi',
+    theme_title:'Isimbo Sendawo Yokusebenzela', theme_sub:'Yenza eyakho umbala',
+    sound_title:'Imisindo', sound_sub:'Imisindo yokucofa',
+    sound_desc:'Yenza imisindo emihle yokucofa.',
+    pass_title:'Tshintsha Igama Lokugqitha', pass_sub:'Hlaziya igama lokugqitha',
+    new_pass:'Igama Lokugqitha Elitsha', confirm_pass:'Qinisekisa', update_pass_btn:'🔐 Hlaziya',
+    ref_title:'Refer Wufumane Imali', ref_sub:'Yabelana uze ufumane ikhomishini',
+    ref_link:'Isixhobo Sakho', copy_btn:'📋 Kopisha', wa_share:'💬 Yabelana ku-WhatsApp',
+    ref_clicks:'Iinkxonkxo', ref_signups:'Ukubhalisa', ref_earned:'Efunyenweyo',
+    support_title:'Uncedo', support_sub:'Qhagamshelana ne-GuardDesk Pro',
+    support_desc:'Ufuna uncedo? Qhagamshelana noCornelius ku-WhatsApp.',
+    support_btn:'💬 WhatsApp — 083 940 8678',
+    generate_incident:'🛡️ Yenza Ingxelo Yesiganeko',
+    generate_hourly:'🕐 Yenza Ingxelo Yeeyure',
+    generate_handover:'🔄 Yenza Ingxelo Yokudluliswa',
+    generate_access:'🚗 Yenza Irekhodi Lokungena',
+    generate_email:'📧 Yenza I-email Esebenzayo',
+    generate_clocking:'📍 Yenza Ingxelo Yokuqopha',
+    login_sub:'Indawo Yokusebenzela Yokhuseleko ye-Mzantsi Afrika',
+    login_instruction:'Ngenisa igama lomsebenzisi negama lokugqitha elo wathumelwa yi-GuardDesk Pro',
+    login_username:'Igama Lomsebenzisi', login_password:'Igama Lokugqitha',
+    login_btn:'🛡️ Ngena kwiNdawo Yokusebenzela',
+    forgot_pass:'🔑 Ulibele igama lokugqitha?',
+  },
+  af: {
+    nav_dashboard:'📊 Paneelbord', nav_incident:'🚨 Voorvalverslag', nav_hourly:'🕐 Uurlikse Verslag',
+    nav_handover:'🔄 Skofoordraging', nav_access:'🚗 Toegangsbeheer', nav_email:'📧 Stel Bestuurder In Kennis',
+    nav_clocking:'📍 Klokpunte', nav_settings:'⚙️ Instellings',
+    settings_title:'⚙️ Instellings', settings_sub:'Tik op enige afdeling om dit oop te maak',
+    lang_title:'Taal', lang_sub:'Kies jou voorkeurstaal',
+    photo_title:'Profielfoto', photo_sub:'Laai jou foto op',
+    photo_desc:'Laai \'n duidelike foto op — verskyn op jou paneelbord.',
+    photo_upload:'📷 Laai Foto Op', photo_remove:'Verwyder',
+    email_title:'E-pos Ontvangers', email_sub:'Stel bestuurder en kliënt e-posadresse in',
+    email_tip:'💡 Gestoorde e-posadresse word outomaties ingevul.',
+    mgr_email:'Bestuurder E-pos', mgr_name:'Bestuurder Naam',
+    client_email:'Kliënt E-pos', client_name:'Kliënt Naam',
+    site_name:'Terrein Naam', company_name:'Sekuriteitsdiens',
+    save_btn:'💾 Stoor Instellings',
+    theme_title:'Werkspasie Tema', theme_sub:'Personaliseer jou kleur',
+    sound_title:'Klanke', sound_sub:'Klikgeluide vir knoppies',
+    sound_desc:'Aktiveer aangename klikgeluide deur die werkspasie.',
+    pass_title:'Verander Wagwoord', pass_sub:'Dateer jou wagwoord op',
+    new_pass:'Nuwe Wagwoord', confirm_pass:'Bevestig Wagwoord', update_pass_btn:'🔐 Dateer Wagwoord Op',
+    ref_title:'Verwys en Verdien', ref_sub:'Deel en verdien kommissie',
+    ref_link:'Jou Verwysingskakel', copy_btn:'📋 Kopieer', wa_share:'💬 Deel op WhatsApp',
+    ref_clicks:'Kliks', ref_signups:'Aanmeldings', ref_earned:'Verdien',
+    support_title:'Hulp en Ondersteuning', support_sub:'Kontak GuardDesk Pro',
+    support_desc:'Hulp nodig? Kontak Cornelius direk op WhatsApp.',
+    support_btn:'💬 WhatsApp — 083 940 8678',
+    generate_incident:'🛡️ Genereer Voorvalverslag',
+    generate_hourly:'🕐 Genereer Uurlikse Verslag',
+    generate_handover:'🔄 Genereer Oordragverslag',
+    generate_access:'🚗 Genereer Toegangsrekord',
+    generate_email:'📧 Genereer Professionele E-pos',
+    generate_clocking:'📍 Genereer Klokverslag',
+    login_sub:'Suid-Afrikaanse Sekuriteitswerkspasie',
+    login_instruction:'Voer die gebruikersnaam en wagwoord in wat GuardDesk Pro aan jou gestuur het',
+    login_username:'Gebruikersnaam', login_password:'Wagwoord',
+    login_btn:'🛡️ Meld Aan by My Werkspasie',
+    forgot_pass:'🔑 Wagwoord vergeet?',
+  },
+  nso: {
+    nav_dashboard:'📊 Setshwantshwa', nav_incident:'🚨 Tlaleho ya Tiragalo', nav_hourly:'🕐 Tlaleho ya Nako',
+    nav_handover:'🔄 Phetišo ya Sephirišano', nav_access:'🚗 Taolo ya Phihlello', nav_email:'📧 Tsebišo ya Motswami',
+    nav_clocking:'📍 Dibotse tša Nako', nav_settings:'⚙️ Maemo',
+    settings_title:'⚙️ Maemo', settings_sub:'Kgokaganya karolo go e bula',
+    lang_title:'Puo', lang_sub:'Kgetha puo ya gago',
+    photo_title:'Setshwantshwa sa Profaele', photo_sub:'Laisa setshwantshwa sa gago',
+    photo_desc:'Laisa setshwantshwa se se galalelang.',
+    photo_upload:'📷 Laisa Setshwantshwa', photo_remove:'Tloša',
+    email_title:'Bagameri ba Imeili', email_sub:'Beakanya aterese tša imeili',
+    email_tip:'💡 Aterese tše di bolokilwego di tlatšwa ka go itirela.',
+    mgr_email:'Imeili ya Motswami', mgr_name:'Leina la Motswami',
+    client_email:'Imeili ya Ralatšwa', client_name:'Leina la Ralatšwa',
+    site_name:'Leina la Lefelo', company_name:'Kgwebo ya Tšhireletšo',
+    save_btn:'💾 Boloka Maemo',
+    theme_title:'Sebopeho sa Sebaka sa Mošomo', theme_sub:'Kgetha mmala wa gago',
+    sound_title:'Medumo', sound_sub:'Medumo ya go kgokaganya',
+    sound_desc:'Dumela medumo e monate ya go kgokaganya.',
+    pass_title:'Fetola Lefiša', pass_sub:'Mpshafatša lefiša la gago',
+    new_pass:'Lefiša le Lesha', confirm_pass:'Tiša Lefiša', update_pass_btn:'🔐 Mpshafatša',
+    ref_title:'Refera o Hwetše', ref_sub:'Abelana o hwetše khomišene',
+    ref_link:'Kgokagantšho ya Gago', copy_btn:'📋 Kopiša', wa_share:'💬 Abelana go WhatsApp',
+    ref_clicks:'Dikgokaganyo', ref_signups:'Ngwadišo', ref_earned:'Go Hwetšwa',
+    support_title:'Thušo', support_sub:'Ikgokaganye le GuardDesk Pro',
+    support_desc:'O hloka thušo? Ikgokaganye le Cornelius go WhatsApp.',
+    support_btn:'💬 WhatsApp — 083 940 8678',
+    generate_incident:'🛡️ Hlama Tlaleho ya Tiragalo',
+    generate_hourly:'🕐 Hlama Tlaleho ya Nako',
+    generate_handover:'🔄 Hlama Tlaleho ya Phetišo',
+    generate_access:'🚗 Hlama Rekodi ya Phihlello',
+    generate_email:'📧 Hlama Imeili ya Setsebi',
+    generate_clocking:'📍 Hlama Tlaleho ya Nako',
+    login_sub:'Sebaka sa Mošomo sa Tšhireletšo ya Afrika Borwa',
+    login_instruction:'Tsenya leina la mosebedisi le lefiša le go romeletšwego ke GuardDesk Pro',
+    login_username:'Leina la Mosebedisi', login_password:'Lefiša',
+    login_btn:'🛡️ Tsena Sebakeng sa Mošomo',
+    forgot_pass:'🔑 O lebetše lefiša?',
+  },
+  tn: { nav_dashboard:'📊 Phatlo', nav_incident:'🚨 Tlaleho ya Tiragalo', nav_hourly:'🕐 Tlaleho ya Ura', nav_handover:'🔄 Phedisetso ya Losalalo', nav_access:'🚗 Taolo ya Phitlhelelo', nav_email:'📧 Itsise Motsamaisi', nav_clocking:'📍 Mafelo a Nako', nav_settings:'⚙️ Dipeelo', settings_title:'⚙️ Dipeelo', settings_sub:'Kgokaganya karolo go e bula', lang_title:'Puo', lang_sub:'Tlhopha puo ya gago', photo_title:'Setshwantsho sa Profaele', photo_sub:'Laisa setshwantsho sa gago', photo_desc:'Laisa setshwantsho se se galalelang.', photo_upload:'📷 Laisa Setshwantsho', photo_remove:'Tlosa', email_title:'Baabegi ba Imeile', email_sub:'Beakanya aterese tsa imeile', email_tip:'💡 Aterese tse di bolokilweng di tlatsiwa ka go itirela.', mgr_email:'Imeile ya Motsamaisi', mgr_name:'Leina la Motsamaisi', client_email:'Imeile ya Raitsisiwe', client_name:'Leina la Raitsisiwe', site_name:'Leina la Lefelo', company_name:'Kgwebo ya Tshireletso', save_btn:'💾 Boloka Dipeelo', theme_title:'Sebopeho sa Sebaka sa Tiro', theme_sub:'Tlhopha mmala wa gago', sound_title:'Medumo', sound_sub:'Medumo ya go kgolaganya', sound_desc:'Dumela medumo e monate.', pass_title:'Fetola Sesupo', pass_sub:'Mpshafatsa sesupo sa gago', new_pass:'Sesupo se Setjha', confirm_pass:'Tiisa Sesupo', update_pass_btn:'🔐 Mpshafatsa', ref_title:'Refera o Amogele', ref_sub:'Abelana o amogele khomišene', ref_link:'Kgolagano ya Gago', copy_btn:'📋 Kopisa', wa_share:'💬 Abelana go WhatsApp', ref_clicks:'Dikgolagano', ref_signups:'Ngwadiso', ref_earned:'Go Amogelwa', support_title:'Thuso', support_sub:'Ikgolaganya le GuardDesk Pro', support_desc:'O tlhoka thuso? Ikgolaganya le Cornelius go WhatsApp.', support_btn:'💬 WhatsApp — 083 940 8678', generate_incident:'🛡️ Tlhama Tlaleho ya Tiragalo', generate_hourly:'🕐 Tlhama Tlaleho ya Ura', generate_handover:'🔄 Tlhama Tlaleho ya Phedisetso', generate_access:'🚗 Tlhama Rekoto ya Phitlhelelo', generate_email:'📧 Tlhama Imeile ya Setsebi', generate_clocking:'📍 Tlhama Tlaleho ya Nako', login_sub:'Sebaka sa Tiro sa Tshireletso ya Aforika Borwa', login_instruction:'Tsenya leina la mosireletsi le sesupo se go romeletsweng ke GuardDesk Pro', login_username:'Leina la Mosireletsi', login_password:'Sesupo', login_btn:'🛡️ Tsena mo Sebakeng sa Tiro', forgot_pass:'🔑 O lebetse sesupo?' },
+  st: { nav_dashboard:'📊 Selaelo', nav_incident:'🚨 Tlaleho ya Tshwetso', nav_hourly:'🕐 Tlaleho ya Hora', nav_handover:'🔄 Phithisano ya Sekhahla', nav_access:'🚗 Taolo ya Phihlello', nav_email:'📧 Tsebisa Molaodi', nav_clocking:'📍 Dibaka tsa Nako', nav_settings:'⚙️ Maemo', settings_title:'⚙️ Maemo', settings_sub:'Kgomaretsa karolo ho e bula', lang_title:'Puo', lang_sub:'Kgetha puo ya hao', photo_title:'Setshwantsho sa Profaele', photo_sub:'Laisa setshwantsho sa hao', photo_desc:'Laisa setshwantsho se hlakehileng.', photo_upload:'📷 Laisa Setshwantsho', photo_remove:'Tlosa', email_title:'Baabegi ba Imeile', email_sub:'Beakanya aterese tsa imeile', email_tip:'💡 Aterese tse bolokiilweng di tlatsa ka bo tshehla.', mgr_email:'Imeile ya Molaodi', mgr_name:'Lebitso la Molaodi', client_email:'Imeile ya Mokhantlha', client_name:'Lebitso la Mokhantlha', site_name:'Lebitso la Sebaka', company_name:'Kgwebo ya Polokeho', save_btn:'💾 Boloka Maemo', theme_title:'Sebopeho sa Sebaka sa Mosebetsi', theme_sub:'Kgetha mmala wa hao', sound_title:'Medumo', sound_sub:'Medumo ya ho tobetsa', sound_desc:'Dumella medumo e monate.', pass_title:'Fetola Lepokoso', pass_sub:'Mpshafatsa lepokoso la hao', new_pass:'Lepokoso le Letjha', confirm_pass:'Netefatsa Lepokoso', update_pass_btn:'🔐 Mpshafatsa', ref_title:'Nkisa o Fumane', ref_sub:'Abelana o fumane khomišene', ref_link:'Kgokahanyo ya Hao', copy_btn:'📋 Kopisa', wa_share:'💬 Abelana go WhatsApp', ref_clicks:'Dikgokahanyo', ref_signups:'Ngodiso', ref_earned:'Ho Fumanwa', support_title:'Thuso', support_sub:'Ikgokahanye le GuardDesk Pro', support_desc:'O hloka thuso? Ikgokahanye le Cornelius go WhatsApp.', support_btn:'💬 WhatsApp — 083 940 8678', generate_incident:'🛡️ Hlama Tlaleho ya Tshwetso', generate_hourly:'🕐 Hlama Tlaleho ya Hora', generate_handover:'🔄 Hlama Tlaleho ya Phithisano', generate_access:'🚗 Hlama Rekoto ya Phihlello', generate_email:'📧 Hlama Imeile ya Setsebi', generate_clocking:'📍 Hlama Tlaleho ya Nako', login_sub:'Sebaka sa Mosebetsi sa Polokeho ya Afrika Borwa', login_instruction:'Kenya lebitso la mosebetsi le lepokoso le romeletsweng ke GuardDesk Pro', login_username:'Lebitso la Mosebetsi', login_password:'Lepokoso', login_btn:'🛡️ Kena Sebakeng sa Mosebetsi', forgot_pass:'🔑 O lebetse lepokoso?' },
+  ts: { nav_dashboard:'📊 Xilahlelo', nav_incident:'🚨 Tlhelo ya Nyimpi', nav_hourly:'🕐 Tlhelo ya Awara', nav_handover:'🔄 Ku Fambisela Shifti', nav_access:'🚗 Ku Lawula Ku Nghena', nav_email:'📧 Lava Maneja', nav_clocking:'📍 Tindzhawu ta Nkarhi', nav_settings:'⚙️ Ku Hleleka', settings_title:'⚙️ Ku Hleleka', settings_sub:'Khoma xiphemu lexi ku xi vula', lang_title:'Ririmi', lang_sub:'Hlawula ririmi ra wena', photo_title:'Xifaniso xa Phrofayili', photo_sub:'Layisha xifaniso xa wena', photo_desc:'Layisha xifaniso lexi vonakaka.', photo_upload:'📷 Layisha Xifaniso', photo_remove:'Susa', email_title:'Vatameri va Email', email_sub:'Veka zindzhawu za email', email_tip:'💡 Zindzhawu leti tirhisiweke ti tala hi ku tiyimela.', mgr_email:'Email ya Maneja', mgr_name:'Vito ra Maneja', client_email:'Email ya Ximati', client_name:'Vito ra Ximati', site_name:'Vito ra Ndhawu', company_name:'Kampani ya Vuhlayiseki', save_btn:'💾 Hlayisa Ku Hleleka', theme_title:'Nkombelo wa Ndhawu ya Ntirho', theme_sub:'Hlawula rimbewu ra wena', sound_title:'Midumo', sound_sub:'Midumo yo Tikhotha', sound_desc:'Pfumela midumo yo tsakisa.', pass_title:'Cinca Phasiwedi', pass_sub:'Hlaziya phasiwedi ya wena', new_pass:'Phasiwedi Entsha', confirm_pass:'Tiyisa Phasiwedi', update_pass_btn:'🔐 Hlaziya', ref_title:'Rhumela u Kuma', ref_sub:'Avela u kuma khomišini', ref_link:'Xihambano xa Wena', copy_btn:'📋 Kopisha', wa_share:'💬 Avela eka WhatsApp', ref_clicks:'Swikhotha', ref_signups:'Ku Ngheniseriwa', ref_earned:'Ku Kumeka', support_title:'Pfuneto', support_sub:'Khalasiwa ne GuardDesk Pro', support_desc:'Lava pfuneto? Khalasiwa na Cornelius eka WhatsApp.', support_btn:'💬 WhatsApp — 083 940 8678', generate_incident:'🛡️ Endla Tlhelo ya Nyimpi', generate_hourly:'🕐 Endla Tlhelo ya Awara', generate_handover:'🔄 Endla Tlhelo ya Ku Fambisela', generate_access:'🚗 Endla Rekodi ya Ku Nghena', generate_email:'📧 Endla Email ya Ntokoto', generate_clocking:'📍 Endla Tlhelo ya Nkarhi', login_sub:'Ndhawu ya Ntirho ya Vuhlayiseki bya Afrika Dzonga', login_instruction:'Nghena vito ra mutirhisi na phasiwedi leyi rhumiweke hi GuardDesk Pro', login_username:'Vito ra Mutirhisi', login_password:'Phasiwedi', login_btn:'🛡️ Nghena Endhawini ya Ntirho', forgot_pass:'🔑 U hlamarile phasiwedi?' },
+  ss: { nav_dashboard:'📊 Likhomba', nav_incident:'🚨 Umbiko Wemphendvo', nav_hourly:'🕐 Umbiko Welikhulu', nav_handover:'🔄 Kuniketela Kweshifu', nav_access:'🚗 Kuphata Ngekungena', nav_email:'📧 Tsebisa Umphathi', nav_clocking:'📍 Tiindawo Tekuphekula', nav_settings:'⚙️ Tisethingi', settings_title:'⚙️ Tisethingi', settings_sub:'Chovota indzawo kuyivula', lang_title:'Lulimi', lang_sub:'Khetsa lulimi lwakho', photo_title:'Sitfombe Sephrofayela', photo_sub:'Layisha sitfombe sakho', photo_desc:'Layisha sitfombe lesicacile.', photo_upload:'📷 Layisha Sitfombe', photo_remove:'Susa', email_title:'Batfameli Be-email', email_sub:'Misa tikheli te-email', email_tip:'💡 Tikheli letigcinwe tiyatigcwalisa.', mgr_email:'I-email Yomphathi', mgr_name:'Ligama Lomphathi', client_email:'I-email Yeklayenti', client_name:'Ligama Leklayenti', site_name:'Ligama Lendawo', company_name:'Inkhampani Yekulindza', save_btn:'💾 Gcina Tisethingi', theme_title:'Indlela Yendzawo Yekusebenta', theme_sub:'Khetsa umbala wakho', sound_title:'Ticoco', sound_sub:'Ticoco tekucindetela', sound_desc:'Vumela ticoco letimunandzi.', pass_title:'Shintsha Liphasiwedi', pass_sub:'Buyeketa liphasiwedi lakho', new_pass:'Liphasiwedi Lelitsha', confirm_pass:'Qinisekisa', update_pass_btn:'🔐 Buyeketa', ref_title:'Refer Utfole Imali', ref_sub:'Yabelana utfole ikhomishini', ref_link:'Isixhumanisi Sakho', copy_btn:'📋 Kopisha', wa_share:'💬 Yabelana ku-WhatsApp', ref_clicks:'Tikuphecvula', ref_signups:'Kubhalisa', ref_earned:'Lokutfolwe', support_title:'Lusito', support_sub:'Xhumana ne-GuardDesk Pro', support_desc:'Udinga lusito? Xhumana naCornelius ku-WhatsApp.', support_btn:'💬 WhatsApp — 083 940 8678', generate_incident:'🛡️ Yenta Umbiko Wemphendvo', generate_hourly:'🕐 Yenta Umbiko Welikhulu', generate_handover:'🔄 Yenta Umbiko Wekudluliswa', generate_access:'🚗 Yenta Rekodi Yekungena', generate_email:'📧 Yenta I-email Yesitsebi', generate_clocking:'📍 Yenta Umbiko Wekuphekula', login_sub:'Indzawo Yekusebenta Yekulindza Ye-Afrika Ningizimu', login_instruction:'Faka ligama lemsebenti neliphasiwedi lelatfunywe yi-GuardDesk Pro', login_username:'Ligama Lemsebenti', login_password:'Liphasiwedi', login_btn:'🛡️ Ngena Endzaweni Yekusebenta', forgot_pass:'🔑 Ulilahlekele liphasiwedi?' },
+  ve: { nav_dashboard:'📊 Bodo', nav_incident:'🚨 Mbuelo wa Nyito', nav_hourly:'🕐 Mbuelo wa Awa', nav_handover:'🔄 U Fhirisela Shifiti', nav_access:'🚗 U Langula U Dzhena', nav_email:'📧 Divhadza Mulanguli', nav_clocking:'📍 Fhethu Hafha Tshifhinga', nav_settings:'⚙️ Mishumo ya Ndivho', settings_title:'⚙️ Mishumo ya Ndivho', settings_sub:'Kanda karolo u i vula', lang_title:'Luambo', lang_sub:'Nanga luambo lwawe', photo_title:'Fhoto ya Profaili', photo_sub:'Layisha fhoto yawe', photo_desc:'Layisha fhoto yo vonalaho.', photo_upload:'📷 Layisha Fhoto', photo_remove:'Bvisa', email_title:'Vhaṱambi vha Email', email_sub:'Vhea anwali dza email', email_tip:'💡 Anwali dzo vhuludzwaho dzi dzhenwa nga u ita dzidzo.', mgr_email:'Email ya Mulanguli', mgr_name:'Dzina la Mulanguli', client_email:'Email ya Khlaen̤i', client_name:'Dzina la Khlaen̤i', site_name:'Dzina la Fhasi', company_name:'Khamphani ya Vhudzulaganyi', save_btn:'💾 Vhuludza Mishumo ya Ndivho', theme_title:'Mukhwa wa Fhasi la Mushumo', theme_sub:'Nanga muṅwe wa rannga', sound_title:'Madzimba', sound_sub:'Madzimba a u kandela', sound_desc:'Tendela madzimba a dakalo.', pass_title:'Shandula Phasiwede', pass_sub:'Mphshafadza phasiwede yawe', new_pass:'Phasiwede Ntswa', confirm_pass:'Tikedza Phasiwede', update_pass_btn:'🔐 Mphshafadza', ref_title:'Riphura u Wane', ref_sub:'Kovhela u wane khomishini', ref_link:'Khonanyo Yawe', copy_btn:'📋 Kopisha', wa_share:'💬 Kovhela kha WhatsApp', ref_clicks:'Dzikandelo', ref_signups:'U Ṅoledza', ref_earned:'Zwo Wanwaho', support_title:'Thuso', support_sub:'Amba na GuardDesk Pro', support_desc:'Ni khou ṱoḓa thuso? Amba na Cornelius kha WhatsApp.', support_btn:'💬 WhatsApp — 083 940 8678', generate_incident:'🛡️ Bumba Mbuelo wa Nyito', generate_hourly:'🕐 Bumba Mbuelo wa Awa', generate_handover:'🔄 Bumba Mbuelo wa u Fhirisela', generate_access:'🚗 Bumba Rekodi ya u Dzhena', generate_email:'📧 Bumba Email ya Mutshili', generate_clocking:'📍 Bumba Mbuelo wa Tshifhinga', login_sub:'Fhasi la Mushumo la Vhudzulaganyi ha Afrika Tshipembe', login_instruction:'Dzhena dzina la muiti na phasiwede yo romiwa nga GuardDesk Pro', login_username:'Dzina la Muiti', login_password:'Phasiwede', login_btn:'🛡️ Dzhena Kha Fhasi la Mushumo', forgot_pass:'🔑 No livhala phasiwede?' },
+  nr: { nav_dashboard:'📊 Ikhomba', nav_incident:'🚨 Umbiko Wesigameko', nav_hourly:'🕐 Umbiko Welikhulu', nav_handover:'🔄 Ukudlulisela Kweshifti', nav_access:'🚗 Ukulawula Ukungena', nav_email:'📧 Tshela uMphathi', nav_clocking:'📍 Iindawo Zokuqopha', nav_settings:'⚙️ Iisethiwe', settings_title:'⚙️ Iisethiwe', settings_sub:'Cofa inxenye ukuyivula', lang_title:'Ulimi', lang_sub:'Khetha ulimi lwakho', photo_title:'Isithombe Sephrofayela', photo_sub:'Layisha isithombe sakho', photo_desc:'Layisha isithombe esicacileyo.', photo_upload:'📷 Layisha Isithombe', photo_remove:'Susa', email_title:'Abathameli be-Email', email_sub:'Misela amakheli e-email', email_tip:'💡 Amakheli agciniweko agcwaliswa ngokwenza kwabo.', mgr_email:'I-Email yoMphathi', mgr_name:'Ibizo loMphathi', client_email:'I-Email yeKlayenti', client_name:'Ibizo leKlayenti', site_name:'Ibizo leSiza', company_name:'Inkampani yoKuLinda', save_btn:'💾 Gcina Iisethiwe', theme_title:'Isitayela Seendawo Zomsebenzi', theme_sub:'Khetha umbala wakho', sound_title:'Imisindo', sound_sub:'Imisindo yokuchopha', sound_desc:'Vumela imisindo emihle.', pass_title:'Tshintsha Iphasiwedi', pass_sub:'Buyekeza iphasiwedi yakho', new_pass:'Iphasiwedi Entsha', confirm_pass:'Qinisekisa Iphasiwedi', update_pass_btn:'🔐 Buyekeza', ref_title:'Refer Uzuze Imali', ref_sub:'Yabelana uzuze ikhomishini', ref_link:'Isixhumanisi Sakho', copy_btn:'📋 Kopisha', wa_share:'💬 Yabelana ku-WhatsApp', ref_clicks:'Amachofoza', ref_signups:'Ukubhalisa', ref_earned:'Okuzuziweko', support_title:'Usizo', support_sub:'Xhumana ne-GuardDesk Pro', support_desc:'Udinga usizo? Xhumana noCornelius ku-WhatsApp.', support_btn:'💬 WhatsApp — 083 940 8678', generate_incident:'🛡️ Yenza Umbiko Wesigameko', generate_hourly:'🕐 Yenza Umbiko Welikhulu', generate_handover:'🔄 Yenza Umbiko Wokudlulisela', generate_access:'🚗 Yenza Irekhodi Lokungena', generate_email:'📧 Yenza I-Email Esebenzayo', generate_clocking:'📍 Yenza Umbiko Wokuqopha', login_sub:'Iindawo Zomsebenzi Zokukhusela e-Afrika Enyakatho', login_instruction:'Faka ibizo lomsebenzisi nephasiwedi ethumelelwe nguGuardDesk Pro', login_username:'Ibizo Lomsebenzisi', login_password:'Iphasiwedi', login_btn:'🛡️ Ngena Eendaweni Zomsebenzi', forgot_pass:'🔑 Ukhohlwe iphasiwedi?' },
+};
+
+let currentLang = 'en';
+
+function selectLanguage(lang) {
+  currentLang = lang;
+  if(currentUser) localStorage.setItem('gd_lang_' + currentUser.username, lang);
+  applyTranslations(lang);
+  // Highlight selected
+  document.querySelectorAll('.lang-opt').forEach(el => {
+    el.classList.toggle('active', el.dataset.lang === lang);
+  });
+  showToast('🌍 Language updated!');
+}
+
+function applyTranslations(lang) {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  // Apply data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if(t[key]) el.textContent = t[key];
+  });
+  // Apply nav tabs
+  const tabs = document.querySelectorAll('.wnav-tab');
+  const navKeys = ['nav_dashboard','nav_incident','nav_hourly','nav_handover','nav_access','nav_email','nav_clocking','nav_settings'];
+  tabs.forEach((tab, i) => { if(navKeys[i] && t[navKeys[i]]) tab.textContent = t[navKeys[i]]; });
+  // Apply generate buttons
+  const btnMap = {
+    'btn-incident': 'generate_incident', 'btn-hourly': 'generate_hourly',
+    'btn-handover': 'generate_handover', 'btn-access': 'generate_access',
+    'btn-email': 'generate_email', 'btn-clocking': 'generate_clocking',
+  };
+  Object.entries(btnMap).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if(el && t[key]) el.textContent = t[key];
+  });
+  // Login elements
+  const loginSub = document.querySelector('.login-sub');
+  if(loginSub && t.login_sub) loginSub.textContent = t.login_sub;
+}
+
+function loadLanguage() {
+  if(!currentUser) return;
+  const lang = localStorage.getItem('gd_lang_' + currentUser.username) || 'en';
+  currentLang = lang;
+  applyTranslations(lang);
+  document.querySelectorAll('.lang-opt').forEach(el => {
+    el.classList.toggle('active', el.dataset.lang === lang);
+  });
+}
+
+function quickLang(lang) {
+  // Language change from login screen — applies to login UI only
+  currentLang = lang;
+  applyTranslations(lang);
+  // Highlight login screen buttons
+  document.querySelectorAll('#screen-login button[onclick^="quickLang"]').forEach(btn => {
+    btn.style.borderColor = btn.getAttribute('onclick').includes(`'${lang}'`) ? 'var(--green)' : 'var(--border)';
+    btn.style.color = btn.getAttribute('onclick').includes(`'${lang}'`) ? 'var(--green)' : 'var(--muted)';
+  });
+}
+
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// Close modal on backdrop
+document.getElementById('confirm-modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+</script>
+</body>
+</html>
